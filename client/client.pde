@@ -52,7 +52,7 @@ void loop()
 
     delay(timeDelayForRecording);
   }
-  //USB.println("Sleeping for 2 seconds before uploading data...");
+  USB.println("Sleeping for 2 seconds before uploading data...");
   delay(2000);
 
   uploadData();
@@ -366,10 +366,16 @@ void uploadData()
 
           SD.OFF();
 
+          USB.print("Memory status after SD card off: ");
+          USB.println(freeMemory());
           if(successSending==1)//if any string is not sent for whatever reason, do not delete the file
           {
+          USB.print("Memory status after memoery freeing: ");
+          USB.println(freeMemory());
             getCellTowerDetails();
             USB.println(wholeString);//cell tower details
+          USB.print("Memory status after getting the cell tower: ");
+          USB.println(freeMemory());
 
             //wholeString now contains cell tower info(RSSI and CellId) tells the server to end the connection on his side
             if (GPRS_Pro.sendData(wholeString))
