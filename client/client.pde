@@ -315,20 +315,20 @@ void uploadData()
 
           if(successSending==1)//if any string is not sent for whatever reason, do not delete the file
           {
-            getCellTowerDetails();
-            USB.println(wholeString);//cell tower details
+            //getCellTowerDetails();
+            //USB.println(wholeString);//cell tower details
 
             //wholeString now contains cell tower info(RSSI and CellId) tells the server to end the connection on his side
-            if (GPRS_Pro.sendData(wholeString))
-            {
-              USB.print("Sent cell tower details. Memory: ");
-              USB.println(freeMemory());
-            }
-            else
-            {
-              USB.println("Failed sending cell tower details. Memory: ");
-              USB.println(freeMemory());
-            }
+//            if (GPRS_Pro.sendData(wholeString))
+//            {
+//              USB.print("Sent cell tower details. Memory: ");
+//              USB.println(freeMemory());
+//            }
+//            else
+//            {
+//              USB.println("Failed sending cell tower details. Memory: ");
+//              USB.println(freeMemory());
+//            }
 
             //'bye' tells the server to end the connection on his side
             if (GPRS_Pro.sendData("bye"))
