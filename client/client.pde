@@ -193,6 +193,8 @@ void getCellTowerDetails()
   {
     //USB.println("Got cell tower connection...");
 
+  USB.println("Memory status after getting cell tower details.");
+  USB.println(freeMemory());
     sprintf(wholeString,"%s","{\"RSSI\":");
     sprintf(wholeString + strlen(wholeString),"%d",GPRS_Pro.RSSI);
     sprintf(wholeString + strlen(wholeString),"%s", ",");
@@ -205,6 +207,8 @@ void getCellTowerDetails()
   {
     //USB.println("I didn't get cell tower connection...");
 
+  USB.println("Memory status after failure to get a cell tower connection.");
+  USB.println(freeMemory());
     sprintf(wholeString,"%s","{\"RSSI\":");
     sprintf(wholeString + strlen(wholeString),"%s","NULL");
     sprintf(wholeString + strlen(wholeString),"%s", ",");
@@ -369,8 +373,8 @@ void uploadData()
 //          USB.println(freeMemory());
           if(successSending==1)//if any string is not sent for whatever reason, do not delete the file
           {
-//        USB.print("Memory status after memoery freeing: ");
-//          USB.println(freeMemory());
+        USB.print("Memory status before getting cell tower details: ");
+          USB.println(freeMemory());
             getCellTowerDetails();
             USB.println(wholeString);//cell tower details
           USB.print("Memory status after getting the cell tower: ");
