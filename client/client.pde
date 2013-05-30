@@ -17,7 +17,7 @@ long stime;
 void setup()
 {
   USB.begin();
-  USB.println("USB port started...");
+  //USB.println("USB port started...");
 
   // setup the GPS module
   USB.println("Setting up GPS...");
@@ -34,7 +34,7 @@ void setup()
   }
 
 #ifdef DBG
-  USB.println("Connected");
+  //USB.println("Connected");
 #endif
 }
 
@@ -230,7 +230,7 @@ uint8_t writeToFile(char *value)
 
   if (SD.isFile("raw_data1.txt") == 1)
   {
-    USB.println("File already exixts");
+    //USB.println("File already exixts");
 
     if (SD.appendln("raw_data1.txt", value) == 1)
     {
@@ -245,7 +245,7 @@ uint8_t writeToFile(char *value)
   }
   else
   {
-    USB.println("File does not exist. Creating it..");
+    //USB.println("File does not exist. Creating it..");
     if (SD.create("raw_data1.txt"))
     {
       //USB.println("File creation successful");
@@ -379,12 +379,12 @@ void uploadData()
             //wholeString now contains cell tower info(RSSI and CellId) tells the server to end the connection on his side
             if (GPRS_Pro.sendData(wholeString))
             {
-              USB.print("Sent cell tower details.\nmemory: ");
+              USB.print("Sent cell tower details. Memory: ");
               USB.println(freeMemory());
             }
             else
             {
-              USB.println("Failed sending cell tower details.\n Memory: ");
+              USB.println("Failed sending cell tower details. Memory: ");
               USB.println(freeMemory());
             }
 
@@ -414,11 +414,11 @@ void uploadData()
             //after upload, delete the uploaded file
             if (SD.del("raw_data1.txt"))
             {
-              USB.println("File deleted");
+              //USB.println("File deleted");
             }
             else
             {
-              USB.println("File could not deleted");
+              //USB.println("File could not deleted");
             }
             // Close GPRS Connection after upload
             GPRS_Pro.OFF();
@@ -434,7 +434,7 @@ void uploadData()
   }
   else
   {
-    USB.println("file not there");
+    //USB.println("file not there");
   }
 }
 
@@ -472,24 +472,15 @@ uint8_t startGPRS()
   // If timeout, exit. if not, try to upload
   if (millis() - stime > TCP_CONFIG_TIMEOUT)
   {
-    USB.print("timeout: GPRS failed.\nmemory: ");
+    USB.print("timeout: GPRS failed.Memory: ");
     USB.println(freeMemory());
     x=0;
   }
   else
   {
-    USB.print("connected: \nmemory status");
+    USB.print("connected: Memory status");
     USB.println(freeMemory());
     x=1;
   }
   return x;
 }
-
-
-
-
-
-
-
-
-
