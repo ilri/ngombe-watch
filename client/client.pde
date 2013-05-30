@@ -17,8 +17,6 @@ long stime;
 void setup()
 {
   USB.begin();
-  //USB.println("USB port started...");
-
   // setup the GPS module
   USB.println("Setting up GPS...");
 
@@ -32,10 +30,6 @@ void setup()
 #endif
     delay(1000);
   }
-
-#ifdef DBG
-  //USB.println("Connected");
-#endif
 }
 
 void loop()
@@ -46,18 +40,15 @@ void loop()
   for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++)
   {
     getValues();
-
     USB.println(wholeString);
-
     writeToFile(wholeString);
-
     delay(timeDelayForRecording);
   }
-  USB.println("Sleeping for 2 seconds before uploading data...");
+  USB.println("Sleeping for 2 secs b4 data upload..");
   delay(2000);
 
   uploadData();
-  delay(5000);//should remove this delay
+  delay(2500);//should remove this delay
 }
 
 void getValues()
@@ -65,24 +56,16 @@ void getValues()
   //construct the json string
   sprintf(wholeString, "%s", "{");
   getAccelerometerReading();
-  //USB.println("Got past acc");
   getGPS();
-  //USB.println("Got past gps");
   getTemperature();
-  //USB.println("Got past temp");
   getBatteryLevel();
-  //USB.println("Got past batt");
   sprintf(wholeString + strlen(wholeString), "%s", "}\n");
-  //USB.println("Got past all");
 }
 
 void getGPS()
 {
   // open the uart
-  USB.print("Memory before GPS connection = ");
-  USB.println(freeMemory());
   GPS.begin();
-
   // Inits the GPS module
   GPS.init();
 
@@ -92,14 +75,8 @@ void getGPS()
     USB.println("Waiting 4 GPS");
     delay(1000);
   }
-  USB.print("Memory after GPS connection = ");
-  USB.println(freeMemory());
-
   GPS.getPosition();
-  USB.print("Memory after GPS get position = ");
-  USB.println(freeMemory());
 
-  //USB.println("---------------");
   sprintf(wholeString + strlen(wholeString), "%s", "\"tm\":\"");
   sprintf(wholeString + strlen(wholeString), "%s", GPS.timeGPS);
   sprintf(wholeString + strlen(wholeString), "%s", "\",");
@@ -160,11 +137,7 @@ void getAccelerometerReading()
 {
   ACC.ON(); //put on the accelerometer
   byte check = ACC.check();
-  if (check != 0x3A)
-  {
-    //USB.print(": Warning: Accelerometer not ok!\n");
-    //USB.println(check, HEX);
-  }
+  if (check != 0x3A){ }
   else
   {
     //----------X Values-----------------------
@@ -191,9 +164,7 @@ void getCellTowerDetails()
   //its own json string
   if(GPRS_Pro.getCellInfo() == 1)
   {
-    //USB.println("Got cell tower connection...");
-
-  USB.println("Memory status after getting cell tower details.");
+  USB.println("Memory status immediately after getting cell tower details.");
   USB.println(freeMemory());
     sprintf(wholeString,"%s","{\"RSSI\":");
     sprintf(wholeString + strlen(wholeString),"%d",GPRS_Pro.RSSI);
@@ -202,13 +173,11 @@ void getCellTowerDetails()
     sprintf(wholeString + strlen(wholeString),"%s","\"Cell ID\":");
     sprintf(wholeString + strlen(wholeString),"%d", GPRS_Pro.cellID);
     sprintf(wholeString + strlen(wholeString),"%s", "}");
+  USB.println("Memory status after many sprintf's.");
+  USB.println(freeMemory());
   }
   else// in case it didnt find, the string should not sill contail previous data
   {
-    //USB.println("I didn't get cell tower connection...");
-
-  USB.println("Memory status after failure to get a cell tower connection.");
-  USB.println(freeMemory());
     sprintf(wholeString,"%s","{\"RSSI\":");
     sprintf(wholeString + strlen(wholeString),"%s","NULL");
     sprintf(wholeString + strlen(wholeString),"%s", ",");
@@ -234,34 +203,26 @@ uint8_t writeToFile(char *value)
 
   if (SD.isFile("raw_data1.txt") == 1)
   {
-    //USB.println("File already exixts");
-
     if (SD.appendln("raw_data1.txt", value) == 1)
     {
-      //USB.println("appending successful");
       x = 1; //append successful
     }
     else
     {
-      //USB.println("Could not write to the already existing file!");
       x = -3; //unsuccessful- could not append to that file 
     }
   }
   else
   {
-    //USB.println("File does not exist. Creating it..");
     if (SD.create("raw_data1.txt"))
     {
-      //USB.println("File creation successful");
       if (SD.writeSD("raw_data1.txt", value, 0))
       {
-        //USB.println("writing successful");
         x = 1; //write successful
       }
       else
       {
         x = -1; //unsuccessful- could not write to that file  
-        //USB.println("Could not write to the just created file!");
       }
     }
   }
@@ -296,7 +257,7 @@ void uploadData()
     }
     else
     {      
-      USB.println("All GPRS OK now. sleep(3)");
+      USB.println("GPRS OK now. sleep(3)");
       delay(3000);
 
       //config tcp connection 
@@ -305,7 +266,7 @@ void uploadData()
       {
         if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT))
         {
-          USB.print("Trying to configure TCP connection: ");
+          USB.print("Trying TCP connection: ");
           USB.println(freeMemory());
 
           delay(6000);
@@ -320,36 +281,24 @@ void uploadData()
         USB.println("TCP config failed");
         PWR.reboot();
       }
-      //end config tcp connection 
-
       else
       {
         USB.print("Configured OK. \nIP dir: ");
         USB.println(GPRS_Pro.IP_dir);
 
         //only try opening tcp connection if config was OK.
-        USB.print("Opening TCP socket...");
         if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081"))
         { // * should be replaced by the desired IP direction and $ by the port
-          USB.println("Connected");
-
           //only try sending string if connected to tcp server
           USB.println("Sending data string...");
           SD.ON();
 
-          USB.println("Memory status before uploading data");
-          USB.println(freeMemory());
           for (int i = 0; i < SD.numln("raw_data1.txt"); i++)
           {
-
-            //if(strcmp(text,"Sent")!=0)// do not send data that has already been sent
-            //{
             if (GPRS_Pro.sendData(SD.catln("raw_data1.txt", i, 1)))
             {
               USB.print(i);
               USB.println(": Sent");
-              //now delete the line by writing an 'sent' on that position
-              //SD.writeSD("raw_data1.txt","sent", i);
               successSending=1;
             }
             else
@@ -358,27 +307,16 @@ void uploadData()
               successSending=0;
               break;
             }
-            //            }
-            //            else
-            //            {
-            //               USB.println("data already sent to server"); 
-            //            }
           }
           USB.print("Memory status after uploading data: ");
           USB.println(freeMemory());
 
           SD.OFF();
 
-//          USB.print("Memory status after SD card off: ");
-//          USB.println(freeMemory());
           if(successSending==1)//if any string is not sent for whatever reason, do not delete the file
           {
-        USB.print("Memory status before getting cell tower details: ");
-          USB.println(freeMemory());
             getCellTowerDetails();
             USB.println(wholeString);//cell tower details
-          USB.print("Memory status after getting the cell tower: ");
-          USB.println(freeMemory());
 
             //wholeString now contains cell tower info(RSSI and CellId) tells the server to end the connection on his side
             if (GPRS_Pro.sendData(wholeString))
@@ -395,7 +333,7 @@ void uploadData()
             //'bye' tells the server to end the connection on his side
             if (GPRS_Pro.sendData("bye"))
             {
-              USB.println("Sent");
+              USB.println("Sent 'bye', closing connection.");
             }
             else
             {
@@ -404,10 +342,9 @@ void uploadData()
             //end closing string
 
             // Close socket
-            USB.print("Closing TCP socket...");
             if (GPRS_Pro.closeSocket())
             {
-              USB.println("Closed");
+              USB.println("Closed TCP.");
             }
             else
             {
@@ -416,14 +353,7 @@ void uploadData()
 
             SD.ON();
             //after upload, delete the uploaded file
-            if (SD.del("raw_data1.txt"))
-            {
-              //USB.println("File deleted");
-            }
-            else
-            {
-              //USB.println("File could not deleted");
-            }
+            if (SD.del("raw_data1.txt")){}
             // Close GPRS Connection after upload
             GPRS_Pro.OFF();
           }
@@ -436,10 +366,7 @@ void uploadData()
       }
     }
   }
-  else
-  {
-    //USB.println("file not there");
-  }
+  else{ }
 }
 
 //if this phase does not succeed, cellInfo will never return true
@@ -474,7 +401,7 @@ uint8_t startGPRS()
   USB.println(freeMemory());
 
   // If timeout, exit. if not, try to upload
-  if (millis() - stime > TCP_CONFIG_TIMEOUT)
+  if (millis() - stime > GPRS_TIMEOUT)
   {
     USB.print("timeout: GPRS failed.Memory: ");
     USB.println(freeMemory());
@@ -482,7 +409,7 @@ uint8_t startGPRS()
   }
   else
   {
-    USB.print("connected: Memory status");
+    USB.print("connected: Memory status: ");
     USB.println(freeMemory());
     x=1;
   }
