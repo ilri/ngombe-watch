@@ -12,6 +12,7 @@ uint8_t x = 0;//variable determines if successful or not
 char  wholeString[300];
 uint8_t gprsRetries=0;
 int loopNo=0;
+long stime;
 
 void setup()
 {
@@ -273,16 +274,16 @@ void uploadData()
     SD.OFF();
 
     // Configure GPRS Connection
-    long previous = millis();
-    while (!startGPRS() && ((millis() - previous) < GPRS_CONFIG_TIMEOUT))
+    stime = millis();
+    while (!startGPRS() && ((millis() - stime) < GPRS_CONFIG_TIMEOUT))
     {
       USB.println("Trying to configure GPRS...");
       delay(2000);
-      if (millis() - previous < 0) previous = millis();
+      if (millis() - stime < 0) stime = millis();
     }
 
     // If timeout, exit. if not, try to upload
-    if (millis() - previous > GPRS_CONFIG_TIMEOUT)
+    if (millis() - stime > GPRS_CONFIG_TIMEOUT)
     {
 #ifdef DBG
       USB.println("timeout: GPRS_CONFIG failed");
@@ -295,9 +296,8 @@ void uploadData()
       delay(3000);
 
       //config tcp connection 
-      long stime = millis();
-      long ctime = stime;
-      while((ctime-stime) < TCP_CONFIG_TIMEOUT)
+      stime = millis();
+      while((millis()-stime) < TCP_CONFIG_TIMEOUT)
       {
         if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT))
         {
@@ -305,7 +305,6 @@ void uploadData()
           USB.println(freeMemory());
 
           delay(6000);
-          ctime = millis();
         }
         else{
           break;
@@ -449,12 +448,11 @@ uint8_t startGPRS()
   USB.println("GPRS_Pro module ready...");
 
   // waiting while GPRS_Pro connects to the network
-  long stime = millis();
-  long ctime = stime;
+  stime = millis();
 
   USB.print("Memory before attempting gprs connection: ");
   USB.println(freeMemory());
-  while(ctime-stime < GPRS_TIMEOUT)
+  while(millis()-stime < GPRS_TIMEOUT)
   {
     if(!GPRS_Pro.check())
     {
@@ -462,7 +460,6 @@ uint8_t startGPRS()
       USB.println(freeMemory());
 
       delay(2000);
-      ctime = millis();
     }
     else
     {
