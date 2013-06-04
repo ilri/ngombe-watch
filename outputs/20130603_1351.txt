@@ -1,0 +1,61 @@
+A#Setting up GPS...
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Loop no: 0
+{"ax":0,"ay":0,"az":0,"tm":"104508.000","dt":"030613","lt":"0116.1616","ln":"03643.3195","al":"1910.7","sp":"0.6","cs":"14.61","temp":26,"battery":56,"battery (Volts)":3.8516}
+
+{"ax":0,"ay":0,"az":0,"tm":"104520.000","dt":"030613","lt":"0116.1612","ln":"03643.3191","al":"1909.2","sp":"0.7","cs":"15.78","temp":26,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":0,"ay":0,"az":0,"tm":"104536.000","dt":"030613","lt":"0116.1606","ln":"03643.3195","al":"1909.1","sp":"0.6","cs":"15.09","temp":26,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":-2,"ay":39,"az":199,"tm":"104551.000","dt":"030613","lt":"0116.1602","ln":"03643.3199","al":"1909.1","sp":"0.6","cs":"18.30","temp":26,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":-2,"ay":39,"az":199,"tm":"104606.000","dt":"030613","lt":"0116.1612","ln":"03643.3199","al":"1906.6","sp":"0.5","cs":"58.43","temp":26,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":-2,"ay":39,"az":199,"tm":"104621.000","dt":"030613","lt":"0116.1615","ln":"03643.3200","al":"1904.0","sp":"0.4","cs":"2.49","temp":25,"battery":54,"battery (Volts)":3.8516}
+
+{"ax":-2,"ay":246,"az":814,"tm":"104636.000","dt":"030613","lt":"0116.1582","ln":"03643.3219","al":"1903.0","sp":"1.2","cs":"219.51","temp":25,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":2,"ay":246,"az":814,"tm":"104651.000","dt":"030613","lt":"0116.1598","ln":"03643.3211","al":"1903.4","sp":"0.7","cs":"14.93","temp":25,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":2,"ay":246,"az":814,"tm":"104704.000","dt":"030613","lt":"0116.1615","ln":"03643.3202","al":"1904.0","sp":"1.1","cs":"18.81","temp":25,"battery":55,"battery (Volts)":3.8516}
+
+{"ax":2,"ay":246,"az":962,"tm":"104719.000","dt":"030613","lt":"0116.1601","ln":"03643.3205","al":"1906.4","sp":"1.5","cs":"19.76","temp":24,"battery":55,"battery (Volts)":3.8516}
+
+Sleeping for 2 secs b4 data upload..
+GPRS_Pro module ready...
+Memory before attempting gprs connection: 269
+Memory b4 attempting gprs connection: 269
+connected: Memory status: 269
+GPRS OK now. sleep(3)
+B4 alocating 100 b of memory: 260
+After sending AT command1: 
+158
+Starting configuration
+After sending AT command2: +CIPMODE=0
+After sending AT command3: +CIPMODE=0
+Before checkGPRS()!=1: 
+After checkGPRS()!=1: 
+Setting username and password
+Setting wireless connection 
+Getting IP direction 
+Before returning finally14: 
+158Memory status after tcp config: 169
+Configured OK. 
+IP dir: 197.183.155.199
+Memory status after geting GPRS_Pro.IP_dir: 169
+Sending data string...
+b4 Sending AT command: 156
+

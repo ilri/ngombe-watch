@@ -1,0 +1,421 @@
+A#Setting up GPS... Free Mem: 1050
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Waiting for GPS connection
+
+Loop no: .0 Free Mem: 1038
+
+{"ax":5,"ay":300,"az":957,"tm":"140842.000","dt":"030613","lt":"0116.1601","ln":"03643.3220","al":"1893.1","sp":"0.1","cs":"21.99","temp":25,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":300,"az":957,"tm":"140856.000","dt":"030613","lt":"0116.1600","ln":"03643.3224","al":"1893.0","sp":"0.1","cs":"32.94","temp":25,"batt":53,"battVolt":3.8387}
+{"ax":3,"ay":300,"az":957,"tm":"140910.000","dt":"030613","lt":"0116.1604","ln":"03643.3230","al":"1891.6","sp":"0.4","cs":"111.61","temp":25,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":300,"az":946,"tm":"140922.000","dt":"030613","lt":"0116.1608","ln":"03643.3236","al":"1889.7","sp":"0.1","cs":"34.17","temp":25,"batt":53,"battVolt":3.8387}
+{"ax":2,"ay":296,"az":946,"tm":"140936.000","dt":"030613","lt":"0116.1601","ln":"03643.3234","al":"1888.8","sp":"0.2","cs":"22.15","temp":25,"batt":53,"battVolt":3.8322}
+{"ax":2,"ay":296,"az":946,"tm":"140950.000","dt":"030613","lt":"0116.1580","ln":"03643.3235","al":"1888.7","sp":"0.2","cs":"12.66","temp":25,"batt":52,"battVolt":3.8387}
+{"ax":2,"ay":296,"az":946,"tm":"141002.000","dt":"030613","lt":"0116.1520","ln":"03643.3245","al":"1891.8","sp":"0.2","cs":"37.42","temp":24,"batt":53,"battVolt":3.8387}
+{"ax":6,"ay":295,"az":955,"tm":"141016.000","dt":"030613","lt":"0116.1553","ln":"03643.3223","al":"1889.0","sp":"0.1","cs":"131.04","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":295,"az":955,"tm":"141030.000","dt":"030613","lt":"0116.1560","ln":"03643.3214","al":"1885.0","sp":"0.6","cs":"46.16","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":295,"az":955,"tm":"141044.000","dt":"030613","lt":"0116.1593","ln":"03643.3215","al":"1893.9","sp":"0.1","cs":"210.73","temp":24,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 1025
+
+Mm after gprs conn: 1025
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 1027
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 925
+
+Mem after socket creation: 925
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+9: Sent
+
+10: Sent
+
+11: Sent
+
+12: Sent
+
+13: Sent
+
+14: Sent
+
+15: Sent
+
+16: Sent
+
+17: Sent
+
+18: Sent
+
+19: Sent
+
+20: Sent
+
+21: Sent
+
+22: Sent
+
+23: Sent
+
+24: Sent
+
+25: Sent
+
+26: Sent
+
+Mem status after data upload: 925
+
+Close connection.
+
+Loop no: .1 Free Mem: 936
+
+{"ax":5,"ay":294,"az":959,"tm":"141346.000","dt":"030613","lt":"0116.1605","ln":"03643.3224","al":"1894.2","sp":"0.4","cs":"190.10","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":294,"az":959,"tm":"141400.000","dt":"030613","lt":"0116.1581","ln":"03643.3230","al":"1894.8","sp":"0.7","cs":"14.06","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":5,"ay":294,"az":959,"tm":"141414.000","dt":"030613","lt":"0116.1575","ln":"03643.3231","al":"1894.4","sp":"0.5","cs":"31.23","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":6,"ay":294,"az":949,"tm":"141428.000","dt":"030613","lt":"0116.1584","ln":"03643.3226","al":"1894.5","sp":"1.2","cs":"15.38","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":294,"az":949,"tm":"141442.000","dt":"030613","lt":"0116.1597","ln":"03643.3221","al":"1894.2","sp":"0.2","cs":"196.78","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":294,"az":949,"tm":"141456.000","dt":"030613","lt":"0116.1592","ln":"03643.3222","al":"1894.3","sp":"0.1","cs":"16.32","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":947,"tm":"141510.000","dt":"030613","lt":"0116.1587","ln":"03643.3224","al":"1894.7","sp":"0.1","cs":"71.00","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":947,"tm":"141524.000","dt":"030613","lt":"0116.1587","ln":"03643.3224","al":"1895.0","sp":"0.1","cs":"160.47","temp":25,"batt":52,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":947,"tm":"141538.000","dt":"030613","lt":"0116.1587","ln":"03643.3223","al":"1895.1","sp":"0.5","cs":"193.75","temp":25,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":951,"tm":"141552.000","dt":"030613","lt":"0116.1595","ln":"03643.3221","al":"1893.9","sp":"0.3","cs":"15.60","temp":25,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 923
+
+Mem after gprs conn: 923
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 925
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 823
+
+Mem after socket creation: 823
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+Mem status after data upload: 823
+
+Close connection.
+
+Loop no: .2 Free Mem: 834
+
+{"ax":2,"ay":295,"az":951,"tm":"141759.000","dt":"030613","lt":"0116.1596","ln":"03643.3222","al":"1896.3","sp":"0.1","cs":"15.75","temp":25,"batt":53,"battVolt":3.8322}
+{"ax":2,"ay":295,"az":951,"tm":"141813.000","dt":"030613","lt":"0116.1587","ln":"03643.3220","al":"1893.2","sp":"0.6","cs":"25.76","temp":25,"batt":53,"battVolt":3.8258}
+{"ax":2,"ay":295,"az":951,"tm":"141825.000","dt":"030613","lt":"0116.1578","ln":"03643.3208","al":"1889.5","sp":"0.1","cs":"288.31","temp":25,"batt":52,"battVolt":3.8322}
+{"ax":2,"ay":295,"az":951,"tm":"141839.000","dt":"030613","lt":"0116.1578","ln":"03643.3210","al":"1889.5","sp":"0.2","cs":"324.83","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":2,"ay":295,"az":951,"tm":"141853.000","dt":"030613","lt":"0116.1581","ln":"03643.3205","al":"1893.0","sp":"0.2","cs":"268.65","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":2,"ay":295,"az":951,"tm":"141907.000","dt":"030613","lt":"0116.1602","ln":"03643.3227","al":"1904.0","sp":"0.0","cs":"340.22","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":949,"tm":"141921.000","dt":"030613","lt":"0116.1614","ln":"03643.3243","al":"1911.5","sp":"0.2","cs":"10.85","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":949,"tm":"141935.000","dt":"030613","lt":"0116.1622","ln":"03643.3250","al":"1916.1","sp":"0.7","cs":"98.94","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":295,"az":949,"tm":"141949.000","dt":"030613","lt":"0116.1624","ln":"03643.3251","al":"1919.8","sp":"0.6","cs":"243.68","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":295,"az":951,"tm":"142001.000","dt":"030613","lt":"0116.1624","ln":"03643.3254","al":"1921.9","sp":"0.5","cs":"243.57","temp":24,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 821
+
+Mem after gprs conn: 821
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 823
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 721
+
+Mem after socket creation: 721
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+Mem status after data upload: 721
+
+Close connection.
+
+Loop no: .3 Free Mem: 732
+
+{"ax":6,"ay":295,"az":951,"tm":"142209.000","dt":"030613","lt":"0116.1565","ln":"03643.3235","al":"1914.1","sp":"0.5","cs":"267.97","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":295,"az":951,"tm":"142223.000","dt":"030613","lt":"0116.1583","ln":"03643.3249","al":"1915.5","sp":"0.4","cs":"31.56","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":296,"az":947,"tm":"142237.000","dt":"030613","lt":"0116.1589","ln":"03643.3257","al":"1919.6","sp":"0.1","cs":"69.16","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":296,"az":947,"tm":"142251.000","dt":"030613","lt":"0116.1632","ln":"03643.3242","al":"1918.6","sp":"0.3","cs":"75.45","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":296,"az":947,"tm":"142305.000","dt":"030613","lt":"0116.1641","ln":"03643.3236","al":"1916.4","sp":"0.2","cs":"29.61","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":299,"az":950,"tm":"142319.000","dt":"030613","lt":"0116.1623","ln":"03643.3241","al":"1914.7","sp":"0.7","cs":"35.09","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":5,"ay":299,"az":950,"tm":"142333.000","dt":"030613","lt":"0116.1606","ln":"03643.3247","al":"1914.3","sp":"0.5","cs":"65.90","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":299,"az":950,"tm":"142345.000","dt":"030613","lt":"0116.1612","ln":"03643.3242","al":"1913.4","sp":"0.5","cs":"33.00","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":297,"az":950,"tm":"142359.000","dt":"030613","lt":"0116.1612","ln":"03643.3253","al":"1915.2","sp":"0.3","cs":"57.84","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":4,"ay":297,"az":950,"tm":"142413.000","dt":"030613","lt":"0116.1606","ln":"03643.3255","al":"1915.9","sp":"1.3","cs":"226.14","temp":24,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 719
+
+Mem after gprs conn: 719
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 721
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 619
+
+Mem after socket creation: 619
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+Mem status after data upload: 619
+
+Close connection.
+
+Loop no: .4 Free Mem: 630
+
+{"ax":4,"ay":297,"az":950,"tm":"142606.000","dt":"030613","lt":"0116.1591","ln":"03643.3216","al":"1903.3","sp":"0.4","cs":"58.97","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":4,"ay":297,"az":941,"tm":"142620.000","dt":"030613","lt":"0116.1579","ln":"03643.3228","al":"1901.0","sp":"0.4","cs":"262.68","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":296,"az":941,"tm":"142635.000","dt":"030613","lt":"0116.1575","ln":"03643.3224","al":"1895.3","sp":"0.1","cs":"309.68","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":296,"az":941,"tm":"142649.000","dt":"030613","lt":"0116.1563","ln":"03643.3208","al":"1884.5","sp":"0.7","cs":"76.37","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":6,"ay":296,"az":950,"tm":"142703.000","dt":"030613","lt":"0116.1557","ln":"03643.3222","al":"1881.1","sp":"0.1","cs":"320.69","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":300,"az":950,"tm":"142717.000","dt":"030613","lt":"0116.1560","ln":"03643.3227","al":"1885.2","sp":"0.2","cs":"354.35","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":5,"ay":300,"az":950,"tm":"142731.000","dt":"030613","lt":"0116.1559","ln":"03643.3234","al":"1889.8","sp":"0.2","cs":"21.90","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":5,"ay":300,"az":950,"tm":"142745.000","dt":"030613","lt":"0116.1559","ln":"03643.3236","al":"1895.5","sp":"0.8","cs":"39.52","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":2,"ay":300,"az":954,"tm":"142759.000","dt":"030613","lt":"0116.1578","ln":"03643.3227","al":"1901.4","sp":"0.2","cs":"64.05","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":2,"ay":300,"az":954,"tm":"142813.000","dt":"030613","lt":"0116.1585","ln":"03643.3227","al":"1906.2","sp":"0.1","cs":"15.80","temp":24,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 617
+
+Mem after gprs conn: 617
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 619
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 517
+
+Mem after socket creation: 517
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+Mem status after data upload: 517
+
+Close connection.
+
+Loop no: .5 Free Mem: 528
+
+{"ax":2,"ay":300,"az":954,"tm":"143009.000","dt":"030613","lt":"0116.1642","ln":"03643.3246","al":"1907.7","sp":"1.2","cs":"11.42","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":2,"ay":296,"az":955,"tm":"143023.000","dt":"030613","lt":"0116.1640","ln":"03643.3248","al":"1906.1","sp":"0.4","cs":"215.55","temp":24,"batt":53,"battVolt":3.8258}
+{"ax":2,"ay":296,"az":955,"tm":"143037.000","dt":"030613","lt":"0116.1641","ln":"03643.3244","al":"1904.1","sp":"0.1","cs":"248.84","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":2,"ay":296,"az":955,"tm":"143049.000","dt":"030613","lt":"0116.1643","ln":"03643.3237","al":"1902.9","sp":"0.2","cs":"311.66","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":298,"az":956,"tm":"143103.000","dt":"030613","lt":"0116.1646","ln":"03643.3223","al":"1901.0","sp":"0.9","cs":"212.17","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":298,"az":956,"tm":"143117.000","dt":"030613","lt":"0116.1625","ln":"03643.3214","al":"1897.4","sp":"1.0","cs":"134.82","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":298,"az":956,"tm":"143129.000","dt":"030613","lt":"0116.1579","ln":"03643.3221","al":"1895.4","sp":"1.1","cs":"153.98","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":299,"az":956,"tm":"143143.000","dt":"030613","lt":"0116.1573","ln":"03643.3226","al":"1893.1","sp":"0.6","cs":"29.68","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":299,"az":956,"tm":"143157.000","dt":"030613","lt":"0116.1571","ln":"03643.3246","al":"1897.0","sp":"1.6","cs":"17.16","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":299,"az":956,"tm":"143209.000","dt":"030613","lt":"0116.1587","ln":"03643.3262","al":"1900.4","sp":"0.6","cs":"20.65","temp":24,"batt":53,"battVolt":3.8322}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 515
+
+Mem after gprs conn: 515
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 517
+
+Trying TCP connection..
+
+Trying TCP connection..
+
+Configured OK. Mem: 415
+
+Mem after socket creation: 415
+
+Sending data...
+
+0: Sent
+
+1: Sent
+
+2: Sent
+
+3: Sent
+
+4: Sent
+
+5: Sent
+
+6: Sent
+
+7: Sent
+
+8: Sent
+
+Mem status after data upload: 415
+
+Close connection.
+
+Loop no: .6 Free Mem: 426
+
+{"ax":3,"ay":298,"az":959,"tm":"143402.000","dt":"030613","lt":"0116.1633","ln":"03643.3197","al":"1874.3","sp":"0.3","cs":"201.06","temp":24,"batt":52,"battVolt":3.8258}
+{"ax":3,"ay":298,"az":959,"tm":"143417.000","dt":"030613","lt":"0116.1630","ln":"03643.3192","al":"1870.6","sp":"0.1","cs":"308.65","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":298,"az":959,"tm":"143431.000","dt":"030613","lt":"0116.1627","ln":"03643.3193","al":"1871.2","sp":"0.4","cs":"174.54","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":298,"az":953,"tm":"143445.000","dt":"030613","lt":"0116.1612","ln":"03643.3201","al":"1875.0","sp":"0.3","cs":"177.10","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":295,"az":953,"tm":"143457.000","dt":"030613","lt":"0116.1593","ln":"03643.3208","al":"1880.0","sp":"0.1","cs":"235.67","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":295,"az":953,"tm":"143511.000","dt":"030613","lt":"0116.1585","ln":"03643.3208","al":"1884.5","sp":"0.4","cs":"80.77","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":295,"az":953,"tm":"143525.000","dt":"030613","lt":"0116.1592","ln":"03643.3202","al":"1886.4","sp":"0.1","cs":"60.21","temp":24,"batt":52,"battVolt":3.8322}
+{"ax":3,"ay":294,"az":954,"tm":"143539.000","dt":"030613","lt":"0116.1611","ln":"03643.3199","al":"1890.4","sp":"0.6","cs":"228.34","temp":24,"batt":53,"battVolt":3.8322}
+{"ax":3,"ay":294,"az":954,"tm":"143553.000","dt":"030613","lt":"0116.1616","ln":"03643.3195","al":"1891.3","sp":"0.1","cs":"255.37","temp":24,"batt":52,"battVolt":3.8258}
+{"ax":3,"ay":294,"az":954,"tm":"143607.000","dt":"030613","lt":"0116.1612","ln":"03643.3196","al":"1892.4","sp":"0.3","cs":"4.32","temp":24,"batt":53,"battVolt":3.8258}
+Sleeping for 2 secs b4 data upload..
+
+Mem b4 gprs conn: 413
+
+Mem after gprs conn: 413
+
+GPRS connected.
+
+GPRS OK. Configuring TCP conn... Mem: 415
+
+Trying TCP connection..
+
+Trying TCP connection..
