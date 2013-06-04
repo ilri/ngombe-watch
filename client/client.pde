@@ -32,18 +32,14 @@ void setup(){
 void loop(){
   USB.print("Loop no: .");
   USB.print(loopNo++);
-  USB.print(" Free Mem: ");
-  USB.println(freeMemory());
   
   for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){
     getValues();
-    USB.print(wholeString);
+    //USB.print(wholeString);
     writeToFile(wholeString);
     delay(timeDelayForRecording);
   }
-  USB.println("Sleeping for 2 secs b4 data upload..");
   delay(2000);
-
   uploadData();
 }
 
@@ -186,7 +182,6 @@ void uploadData(){
   SD.ON();
   if (!SD.isFile("raw_data1.txt")){
     SD.OFF();
-    USB.println("File does not exist.");
     return;
   }
   SD.OFF();
@@ -194,24 +189,23 @@ void uploadData(){
     // Configure GPRS Connection
     stime = millis();
     while (!startGPRS() && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-      USB.println("Trying to configure GPRS...");
+      //USB.println("Trying to configure GPRS...");
       delay(2000);
       if (millis() - stime < 0) stime = millis();
     }
 
     // If timeout, exit. if not, try to upload
     if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-      USB.println("timeout: GPRS_CONFIG failed");
+      USB.print("GPRS config failed, mem: ");
+      USB.println(freeMemory());
       PWR.reboot();
     }
     else{
-      USB.print("GPRS OK. Configuring TCP conn... Mem: ");
-      USB.println(freeMemory());
       //config tcp connection
       stime = millis();
       while((millis()-stime) < TCP_CONFIG_TIMEOUT){
         if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT)){
-          USB.println("Trying TCP connection..");
+          //USB.println("Trying TCP connection..");
           delay(3000);
         }
         else{
@@ -220,36 +214,29 @@ void uploadData(){
       }
 
       if (millis() - stime > TCP_CONFIG_TIMEOUT){
-        USB.println("TCP config failed");
+        USB.print("TCP config failed, mem: ");
+        USB.println(freeMemory());
         PWR.reboot();
       }
       else{
-        USB.print("Configured OK. Mem: ");
-        USB.println(freeMemory());
-
         //only try opening tcp connection if config was OK.
         if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
-          USB.print("Mem after socket creation: ");
-          USB.println(freeMemory());
           // * should be replaced by the desired IP direction and $ by the port
           //only try sending string if connected to tcp server
-          USB.println("Sending data...");
+          USB.println("Begin sending data...");
           SD.ON();
 
           for (int i = 0; i < SD.numln("raw_data1.txt"); i++){
             if (GPRS_Pro.sendData(SD.catln("raw_data1.txt", i, 1))){
-              USB.print(i);
-              USB.println(": Sent");
               successSending=1;
             }
             else{
-              USB.println("Failed sending");// if one fails, then the rest are bound to fail as well.
+              USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
+	      USB.println(i);
               successSending=0;
               break;
             }
           }
-          USB.print("Mem status after data upload: ");
-          USB.println(freeMemory());
 
 	  //if any string is not sent for whatever reason, do not delete the file
           if(successSending==1){  
@@ -258,7 +245,7 @@ void uploadData(){
             */
 
             //'bye' tells the server to end the connection on his side
-            USB.println("Close connection.");
+            USB.println("Sending succeeded.");
 	    GPRS_Pro.sendData("bye");
 
             // Close socket
@@ -288,8 +275,6 @@ uint8_t startGPRS(){
   // waiting while GPRS_Pro connects to the network
   stime = millis();
 
-  USB.print("Mem b4 gprs conn: ");
-  USB.println(freeMemory());
   while(millis()-stime < GPRS_TIMEOUT){
     if(!GPRS_Pro.check()){
       USB.print("Configuring GPRS...");
@@ -299,16 +284,14 @@ uint8_t startGPRS(){
       break;
     }
   }
-  USB.print("Mem after gprs conn: ");
-  USB.println(freeMemory());
 
   // If timeout, exit. if not, try to upload
   if (millis() - stime > GPRS_TIMEOUT){
-    USB.print("Timeout, GPRS failed.");
+    USB.print("Timeout, GPRS failed free mem:");
+    USB.println(freeMemory());
     x=0;
   }
   else{
-    USB.println("GPRS connected.");
     x=1;
   }
   return x;
