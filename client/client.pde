@@ -1,6 +1,8 @@
 #define GPRS_TIMEOUT 12000 //in millisecods
 #define GPRS_CONFIG_TIMEOUT 60000 //timeout the config after 1 minute and reboot
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
+#define config_file "config.txt"
+#define tcp_errors_file "tcp_errors.txt"
 
 uint8_t noOfLines = 0; //no of times the data on the SD dard is written/cycles
 uint8_t maxLoopsBeforeUpload = 10;
@@ -31,8 +33,8 @@ void setup(){
 
 void loop(){
   USB.print("Loop no: .");
-  USB.print(loopNo++);
-  
+  USB.println(loopNo++);
+
   for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){
     getValues();
     //USB.print(wholeString);
@@ -123,7 +125,8 @@ void getTemperature(){
 void getAccelerometerReading(){
   ACC.ON(); //put on the accelerometer
   byte check = ACC.check();
-  if (check != 0x3A){ }
+  if (check != 0x3A){ 
+  }
   else{
     //----------X Values-----------------------
     //format: {"ax":131,"ay":-19,"az":983}
@@ -186,83 +189,85 @@ void uploadData(){
   }
   SD.OFF();
 
-    // Configure GPRS Connection
+  // Configure GPRS Connection
+  stime = millis();
+  while (!startGPRS() && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
+    //USB.println("Trying to configure GPRS...");
+    delay(2000);
+    if (millis() - stime < 0) stime = millis();
+  }
+
+  // If timeout, exit. if not, try to upload
+  if (millis() - stime > GPRS_CONFIG_TIMEOUT){
+    USB.print("GPRS config failed, mem: ");
+    USB.println(freeMemory());
+    PWR.reboot();
+  }
+  else{
+    //config tcp connection
     stime = millis();
-    while (!startGPRS() && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-      //USB.println("Trying to configure GPRS...");
-      delay(2000);
-      if (millis() - stime < 0) stime = millis();
+    while((millis()-stime) < TCP_CONFIG_TIMEOUT){
+      if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT)){
+        //USB.println("Trying TCP connection..");
+        delay(3000);
+      }
+      else{
+        break;
+      }
     }
 
-    // If timeout, exit. if not, try to upload
-    if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-      USB.print("GPRS config failed, mem: ");
+    if (millis() - stime > TCP_CONFIG_TIMEOUT){
+      USB.print("TCP config failed, mem: ");
       USB.println(freeMemory());
+      sendingSMS();
       PWR.reboot();
     }
     else{
-      //config tcp connection
-      stime = millis();
-      while((millis()-stime) < TCP_CONFIG_TIMEOUT){
-        if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT)){
-          //USB.println("Trying TCP connection..");
-          delay(3000);
-        }
-        else{
-          break;
-        }
-      }
+      //only try opening tcp connection if config was OK.
+      if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
+        // * should be replaced by the desired IP direction and $ by the port
+        //only try sending string if connected to tcp server
+        USB.println("Begin sending data...");
+        SD.ON();
 
-      if (millis() - stime > TCP_CONFIG_TIMEOUT){
-        USB.print("TCP config failed, mem: ");
-        USB.println(freeMemory());
-        PWR.reboot();
+        for (int i = 0; i < SD.numln("raw_data1.txt"); i++){
+          if (GPRS_Pro.sendData(SD.catln("raw_data1.txt", i, 1))){
+            successSending=1;
+          }
+          else{
+            USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
+            USB.println(i);
+            successSending=0;
+            break;
+          }
+        }
+
+        //if any string is not sent for whatever reason, do not delete the file
+        if(successSending==1){  
+          /* ToDo:
+           	Get cell tower details and upload them separately
+           */
+
+          //'bye' tells the server to end the connection on his side
+          USB.println("Sending succeeded.");
+          GPRS_Pro.sendData("bye");
+
+          // Close socket
+          GPRS_Pro.closeSocket();
+
+          //after upload, delete the uploaded file
+          if (SD.del("raw_data1.txt")){/* What happens if file deleting fails???? */
+          }
+          // Close GPRS Connection after upload
+          GPRS_Pro.OFF();
+        }
+        SD.OFF();
       }
       else{
-        //only try opening tcp connection if config was OK.
-        if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
-          // * should be replaced by the desired IP direction and $ by the port
-          //only try sending string if connected to tcp server
-          USB.println("Begin sending data...");
-          SD.ON();
-
-          for (int i = 0; i < SD.numln("raw_data1.txt"); i++){
-            if (GPRS_Pro.sendData(SD.catln("raw_data1.txt", i, 1))){
-              successSending=1;
-            }
-            else{
-              USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
-	      USB.println(i);
-              successSending=0;
-              break;
-            }
-          }
-
-	  //if any string is not sent for whatever reason, do not delete the file
-          if(successSending==1){  
-            /* ToDo:
-            	Get cell tower details and upload them separately
-            */
-
-            //'bye' tells the server to end the connection on his side
-            USB.println("Sending succeeded.");
-	    GPRS_Pro.sendData("bye");
-
-            // Close socket
-            GPRS_Pro.closeSocket();
-
-            //after upload, delete the uploaded file
-            if (SD.del("raw_data1.txt")){/* What happens if file deleting fails???? */}
-            // Close GPRS Connection after upload
-            GPRS_Pro.OFF();
-          }
-          SD.OFF();
-        }
-        else{
-          USB.println("Error opening the socket"); // will simply go on but append to that file- server error
-        }
+        USB.println("Error opening the socket"); // will simply go on but append to that file- server error
       }
     }
+  }
 }
 
 //if this phase does not succeed, cellInfo will never return true
@@ -295,4 +300,49 @@ uint8_t startGPRS(){
     x=1;
   }
   return x;
+}
+void sendingSMS()
+{
+  char message[50];
+  char * tcp_errors;
+
+  SD.ON();
+  if(SD.isFile(tcp_errors_file)){
+    tcp_errors=SD.catln(tcp_errors_file,0,1);
+
+    if(SD.isFile(config_file)){
+
+      char * max_tcp_errors=SD.catln(config_file,0,1);//first index is for tcp config max errors
+      
+      if(atoi(tcp_errors) % atoi(max_tcp_errors)==0){
+        
+        char * phone_number=SD.catln(config_file,1,1);  //second index is for phone number to send sms to
+        sprintf(message,"waspmote...\n Retries: %s\n and Max set retries: %s\n",tcp_errors,max_tcp_errors);
+        
+        GPRS_Pro.sendSMS(message,phone_number);// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+      }
+
+      char * newVal;
+      sprintf(newVal,"%d",(tcp_errors++));
+
+      //now incease the value of the errors in the tcp_errors file.
+      if(SD.del(tcp_errors_file)){
+        if(SD.create(tcp_errors_file)){
+          if(SD.writeSD(tcp_errors_file,newVal,0)){
+          } 
+        }
+      }
+      else{
+        //how come we could not delete that file?
+      }  
+    }
+  }
+  else //the first time tcp_config fails
+  {
+    if(SD.create(tcp_errors_file)){
+      if(SD.writeSD(tcp_errors_file,"0",0)){
+      } 
+    }
+  }
+  SD.OFF();
 }
