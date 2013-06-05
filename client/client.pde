@@ -13,7 +13,7 @@ char t[20];
 uint8_t x = 0;//variable determines if successful or not
 char  wholeString[300];
 uint8_t gprsRetries=0;
-int loopNo=0;
+uint8_t loopNo=0;
 long stime;
 
 void setup(){
@@ -29,6 +29,12 @@ void setup(){
 		USB.println("Waiting for GPS connection");
 		delay(1000);
 	}
+
+	struct conf{
+		uint8_t tcpR;//current no of tcp retries
+		uint8_t tcpX;//tcp max retries before sending sms 
+		char *  phn;//phone number 
+	};
 }
 
 void loop(){
@@ -66,6 +72,7 @@ void getGPS(){
 		USB.println("Waiting 4 GPS");
 		delay(1000);
 	}
+
 	GPS.getPosition();
 
 	sprintf(wholeString + strlen(wholeString), "%s", "\"tm\":\"");
@@ -222,11 +229,14 @@ void uploadData(){
 
 			// Close GPRS Connection after upload
 			GPRS_Pro.OFF();
-
 			sendingSMS();
+
 			PWR.reboot();
 		}
 		else{
+			//reset the retries value in the config file.			
+			resetErrs("tcpR");
+
 			//only try opening tcp connection if config was OK.
 			if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
 				// * should be replaced by the desired IP direction and $ by the port
@@ -318,6 +328,50 @@ uint8_t startGPRS(uint8_t isms){
 
 	return x;
 }
+void resetErrs(char *type)
+{
+
+	//create an object of the structure
+	struct conf obj;
+
+	//read the values from the file into the structure.
+	SD.ON();
+
+	if(!SD.isFile(config_file)){
+		return;//no point of trying to create it.
+	}
+	else{
+		obj.tcpR = atoi(SD.catln(config_file,0,1));//first index is for tcp config errors so far acrued		
+		obj.tcpX = atoi(SD.catln(config_file,1,1));//second index is for tcp config max errors
+		obj.phn  = SD.catln(config_file,2,1);//third index is for the phone number
+
+		//reset the required value to 0
+
+		//now reset the value of the errors of the required type.
+		char newVal[5];
+		if(strcmp(type,"tcpR")==0){
+			obj.tcpR=0;			
+			sprintf(newVal,"%d",obj.tcpR);
+		}//add other else if options here for other error cases.
+
+		//delete the file. 
+		if(SD.del(config_file)){
+			if(SD.create(config_file)){
+
+				//write back the new updated data
+
+				if(SD.writeSD(config_file,newVal,0)){}//the incremented value of the number of retries
+				if(SD.appendln(config_file,obj.tcpX)){}//the original max number of retries before sending an sms 
+				if(SD.appendln(config_file,obj.phn)){}//the original phone number.
+
+			}
+			// Close GPRS Connection after sending sms
+			GPRS_Pro.OFF();
+		}
+		SD.OFF();
+	}
+}
+
 void sendingSMS()
 {
 	// Configure GPRS Connection
@@ -330,53 +384,51 @@ void sendingSMS()
 
 	// If timeout, exit. if not, try to send sms
 	if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-		return;//
+		return;
 	}
 	else{
 
-		char message[50];
-		char * tcp_errors;
+		//create an object of the structure
+		struct conf obj;
 
+		//read the values from the file into the structure.
 		SD.ON();
-		if(SD.isFile(tcp_errors_file)){
-			tcp_errors=SD.catln(tcp_errors_file,0,1);
 
-			if(SD.isFile(config_file)){
-
-				char * max_tcp_errors=SD.catln(config_file,0,1);//first index is for tcp config max errors
-
-				if(atoi(tcp_errors) % atoi(max_tcp_errors)==0){
-
-					char * phone_number=SD.catln(config_file,1,1);  //second index is for phone number to send sms to
-					sprintf(message,"waspmote...\n Retries: %s\n and Max set retries: %s\n",tcp_errors,max_tcp_errors);
-
-					GPRS_Pro.sendSMS(message,phone_number);// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
-				}
-
-				char * newVal;
-				sprintf(newVal,"%d",(tcp_errors++));
-
-				//now incease the value of the errors in the tcp_errors file.
-				if(SD.del(tcp_errors_file)){
-					if(SD.create(tcp_errors_file)){
-						if(SD.writeSD(tcp_errors_file,newVal,0)){
-						} 
-					}
-				}
-				else{
-					//how come we could not delete that file?
-				}  
-			}
+		if(!SD.isFile(config_file)){
+			return;//no point of trying to create it.
 		}
-		else{ //the first time tcp_config fails
-			if(SD.create(tcp_errors_file)){
-				if(SD.writeSD(tcp_errors_file,"0",0)){
-				} 
-			}
-		}
-		SD.OFF();
+		else{
+			obj.tcpR = atoi(SD.catln(config_file,0,1));//first index is for tcp config errors so far acrued		
+			obj.tcpX = atoi(SD.catln(config_file,1,1));//second index is for tcp config max errors
+			obj.phn  = SD.catln(config_file,2,1);//third index is for the phone number
 
-		// Close GPRS Connection after sending sms
-		GPRS_Pro.OFF();
+			//use the data to either send sms or dont, depending on the retries vs the max set values
+			if(obj.tcpR % obj.tcpX == 0){
+				char message[50];//the message to send to the phone number provided 
+
+				sprintf(message,"waspmote...\n Retries: %s\n and Max set retries: %s\n",obj.tcpR,obj.tcpX);
+				GPRS_Pro.sendSMS(message,obj.phn);// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+			}
+
+			//now incease the value of the errors in the tcp_errors file.
+			char newVal[5];
+			sprintf(newVal,"%d",++obj.tcpR);
+
+			//delete the file. 
+			if(SD.del(config_file)){
+				if(SD.create(config_file)){
+
+					//write back the new updated data
+
+					if(SD.writeSD(config_file,newVal,0)){}//the incremented value of the number of retries
+					if(SD.appendln(config_file,obj.tcpX)){}//the original max number of retries before sending an sms 
+					if(SD.appendln(config_file,obj.phn)){}//the original phone number.
+
+				}
+				// Close GPRS Connection after sending sms
+				GPRS_Pro.OFF();
+			}
+			SD.OFF();
+		}
 	}
 }
