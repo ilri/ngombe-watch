@@ -1,0 +1,26 @@
+A#Setting up GPS... Free Mem: 1151
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Waiting for GPS connection
+Loop no: .0
+Begin sending data...
+Sending succeeded.
+Loop no: .1
+Begin sending data...
+Sending succeeded.
+Loop no: .2
+Begin sending data...
+Sending succeeded.
+Loop no: .3
+

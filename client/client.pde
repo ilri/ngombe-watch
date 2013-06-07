@@ -350,13 +350,13 @@ void modifyString()
     sprintf(list[0],"%d",(atoi(list[0])+1));
     sprintf(message,"%s\n%s\n%s\n%s\n",list[0],list[1],list[2],list[3]);
 
-    if(SD.writeSD("my_config.txt",message,0))// USB.println("write new values to my_config.txt");
+    if(SD.writeSD("my_config.txt",message,0)){}// USB.println("write new values to my_config.txt");
     //USB.println("Show 'my_config.txt':  ");
     //USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
-    char resp1[2][11];
-    strcpy(resp1[0],list[2]);
-    strcpy(resp1[1],list[3]);
+    char resp[2][11];
+    strcpy(resp[0],list[2]);
+    strcpy(resp[1],list[3]);
 
     if(x==1)
     {
