@@ -1,0 +1,20 @@
+1. create a config file and save it to the sdcard.
+	- the max no of tcp retries before sending the sms
+	- the number to which to send teh sms
+	- 
+logic
+1. if tcp config fails
+	1. if tcp_failures.txt exists,
+		1. -load value stored there.
+		   -load value of max tcp retries from config.txt
+			   -if stored value %  max no of retries == 0 
+			     send sms
+		   -increase stored value by one.
+ 
+	2. else if tcp_failures.txt does not exists
+		1. - send sms to a hardcoded number(the default)
+
+2. else if it succeeds
+	if tcp_config.txt exixts
+		delete it and create the same file .
+		write there value 0.
