@@ -40,6 +40,8 @@ void loop(){
 		writeToFile(wholeString);
 		delay(timeDelayForRecording);
 	}
+
+	USB.println("Sleep(2)");
 	delay(2000);
 	uploadData();
 }
@@ -62,7 +64,7 @@ void getGPS(){
 
 	// Checking for satellite connection
 	while(!GPS.check()){
-		USB.println("Waiting 4 GPS");
+		USB.println("W8 4 GPS");
 		delay(1000);
 	}
 
@@ -222,15 +224,15 @@ void uploadData(){
 
 			// Close GPRS Connection after upload
 			GPRS_Pro.OFF();
-		        modifyString("tcpR",1);//modify message and write the new values to sd card then send sms if necessary
+			modifyString("tcpR",1);//modify message and write the new values to sd card then send sms if necessary
 
 			PWR.reboot();
 		}
 		else{
 			//reset the retries value in the config file.			
 
-		        modifyString("tcpR",0);//modify message and write the new values to sd card then send sms if necessary
-			
+			modifyString("tcpR",0);//modify message and write the new values to sd card then send sms if necessary
+
 			//only try opening tcp connection if config was OK.
 			if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
 				// * should be replaced by the desired IP direction and $ by the port
@@ -332,11 +334,11 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 	x=0;
 	SD.ON();
 	if(SD.isFile("my_config.txt")){
-		USB.println("Config file exists");
+		//USB.println("Config file exists");
 		sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
-		USB.println("Original message: ");
-		USB.println(message);
+		//USB.println("Original message: ");
+		//USB.println(message);
 
 		//tokenize data
 		char list[4][20];
@@ -366,36 +368,36 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 		}//add other else ifs for other cases as necessary
 
 		if(pro==1){//set its value to +=1
-                USB.println("Incrementing...");
-                
+			//USB.println("Incrementing...");
+
 			if(strcmp(field,"tcpR")==0){
 				sprintf(dat1.tcpR,"%d",(atoi(dat1.tcpR)+1));
 				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
 			}//for other cases, to increment, add here
-                        else
-                        {
-                         USB.println("Strings don't match"); 
-                        }
+			else
+			{
+				//       USB.println("Strings don't match"); 
+			}
 		}
 		else if(pro==0){//set its value to zero
-                USB.println("Resetting...");
-                
+			//USB.println("Resetting...");
+
 			if(strcmp(field,"tcpR")==0){
 				sprintf(dat1.tcpR,"%d",0);
 				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
 			}//for other cases, to reset, add here
-                        else
-                        {
-                         USB.println("Strings don't match"); 
-                        }
+			else
+			{
+				//     USB.println("Strings don't match"); 
+			}
 		}
 
-		USB.println("Final message: \n");
-		USB.println(message);
+		//USB.println("Final message: \n");
+		//USB.println(message);
 
-		if(SD.writeSD("my_config.txt",message,0)) USB.println("write new values to my_config.txt");
-		USB.println("Show 'my_config.txt':  ");
-		USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+		if(SD.writeSD("my_config.txt",message,0)){}// USB.println("write new values to my_config.txt");
+		//USB.println("Show 'my_config.txt':  ");
+		//USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
 		if(x==1){
 
@@ -407,12 +409,12 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 		}
 	}
 	else{
-		USB.println("file does not exist");//get it from the server 
+		//USB.println("file does not exist");//get it from the server 
 	}  
 	SD.OFF();
 }
 
- //receives a list of recepients to whom the message is sent
+//receives a list of recepients to whom the message is sent
 void sendSMS(char resp[][11]){
 	//tokenize data
 	char list[4][20];
@@ -440,12 +442,12 @@ void sendSMS(char resp[][11]){
 	}
 	else{
 		//USB.println("GPRS OK");
-		if(GPRS_Pro.sendSMS(message,resp[0])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+		if(GPRS_Pro.sendSMS(message,resp[0]))  USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
 		//else USB.println("Error sending sms");
 
-		delay(1000);
+		//delay(1000);
 
-		if(GPRS_Pro.sendSMS(message,resp[1])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+		if(GPRS_Pro.sendSMS(message,resp[1])) USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
 		//else USB.println("Error sending sms");
 	}
 	GPRS_Pro.OFF();
