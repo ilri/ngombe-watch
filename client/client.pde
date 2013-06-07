@@ -36,7 +36,7 @@ void loop(){
 
 	for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){
 		getValues();
-		//USB.print(wholeString);
+		USB.print(wholeString);
 		writeToFile(wholeString);
 		delay(timeDelayForRecording);
 	}
@@ -192,7 +192,7 @@ void uploadData(){
 	// Configure GPRS Connection
 	stime = millis();
 	while (!startGPRS(0) && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-		//USB.println("Trying to configure GPRS...");
+		USB.println("Trying to configure GPRS...");
 		delay(2000);
 		if (millis() - stime < 0) stime = millis();
 	}
@@ -222,13 +222,15 @@ void uploadData(){
 
 			// Close GPRS Connection after upload
 			GPRS_Pro.OFF();
-			modifyString();//modify message and write the new values to sd card then send sms if necessary
+		        modifyString("tcpR",1);//modify message and write the new values to sd card then send sms if necessary
 
 			PWR.reboot();
 		}
 		else{
 			//reset the retries value in the config file.			
 
+		        modifyString("tcpR",0);//modify message and write the new values to sd card then send sms if necessary
+			
 			//only try opening tcp connection if config was OK.
 			if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
 				// * should be replaced by the desired IP direction and $ by the port
@@ -279,6 +281,7 @@ void uploadData(){
 
 }
 
+
 //if this phase does not succeed, cellInfo will never return true
 uint8_t startGPRS(int isms){
 	x=0;//start when the value of x =0;
@@ -324,88 +327,126 @@ uint8_t startGPRS(int isms){
 	return x;
 }
 
-void modifyString()
+void modifyString(char * field,int pro)//field is the value to be modified, pro is 0 or 1. 1 means increase, 0 means set its value to zero
 {
-  x=0;
-  SD.ON();
-  if(SD.isFile("my_config.txt"))
-  {
-    sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+	x=0;
+	SD.ON();
+	if(SD.isFile("my_config.txt")){
+		USB.println("Config file exists");
+		sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
-    //tokenize data
-    char list[4][20];
-    int i=0;
-    char * pch = strtok (message,"\n");
-    while (pch != NULL)
-    {
-      strcpy(list[i],pch);
-      pch = strtok (NULL, "\n");
-      i++;
-    }
-    if((atoi(list[0]) % atoi(list[1]))==0)
-    {
-      x=1;//send sms
-    }
+		USB.println("Original message: ");
+		USB.println(message);
 
-    sprintf(list[0],"%d",(atoi(list[0])+1));
-    sprintf(message,"%s\n%s\n%s\n%s\n",list[0],list[1],list[2],list[3]);
+		//tokenize data
+		char list[4][20];
+		int i=0;
+		char * pch = strtok (message,"\n");
+		while (pch != NULL){
+			strcpy(list[i],pch);
+			pch = strtok (NULL, "\n");
+			i++;
+		}
+		struct my_data{
+			char tcpR[20];
+			char tcpX[20];
+			char phn1[11];
+			char phn2[11];
+		};
 
-    if(SD.writeSD("my_config.txt",message,0))// USB.println("write new values to my_config.txt");
-    //USB.println("Show 'my_config.txt':  ");
-    //USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+		//now copy the data from list to the data structure
+		struct my_data dat1;
+		strcpy(dat1.tcpR,list[0]);
+		strcpy(dat1.tcpX,list[1]);
+		strcpy(dat1.phn1,list[2]);
+		strcpy(dat1.phn2,list[3]);
 
-    char resp1[2][11];
-    strcpy(resp1[0],list[2]);
-    strcpy(resp1[1],list[3]);
+		if((((atoi(dat1.tcpR)+1) % atoi(dat1.tcpX))==0)&&(atoi(dat1.tcpR)!=0)){//dont send sms for the first retry
+			x=1;//send sms
+		}//add other else ifs for other cases as necessary
 
-    if(x==1)
-    {
-      sendSMS(resp);
-    }
-  }
-  else
-  {
-    //USB.println("file does not exist"); 
-  }  
-  SD.OFF();
+		if(pro==1){//set its value to +=1
+                USB.println("Incrementing...");
+                
+			if(strcmp(field,"tcpR")==0){
+				sprintf(dat1.tcpR,"%d",(atoi(dat1.tcpR)+1));
+				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
+			}//for other cases, to increment, add here
+                        else
+                        {
+                         USB.println("Strings don't match"); 
+                        }
+		}
+		else if(pro==0){//set its value to zero
+                USB.println("Resetting...");
+                
+			if(strcmp(field,"tcpR")==0){
+				sprintf(dat1.tcpR,"%d",0);
+				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
+			}//for other cases, to reset, add here
+                        else
+                        {
+                         USB.println("Strings don't match"); 
+                        }
+		}
+
+		USB.println("Final message: \n");
+		USB.println(message);
+
+		if(SD.writeSD("my_config.txt",message,0)) USB.println("write new values to my_config.txt");
+		USB.println("Show 'my_config.txt':  ");
+		USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+
+		if(x==1){
+
+			char resp[2][11];//send sms to these two numbers
+			strcpy(resp[0],dat1.phn1);
+			strcpy(resp[1],dat1.phn2);
+
+			sendSMS(resp);
+		}
+	}
+	else{
+		USB.println("file does not exist");//get it from the server 
+	}  
+	SD.OFF();
 }
 
-void sendSMS(char resp[][11])
-{
-  //tokenize data
-  char list[4][20];
-  int i=0;
-  char * pch = strtok (message,"\n");
-  while (pch != NULL)
-  {
-    strcpy(list[i],pch);
-    pch = strtok (NULL, "\n");
-    i++;
-  }
-  sprintf(list[0],"%d",(atoi(list[0])+1));
-  sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nphn1: %s\nphn2: %s\n",list[0],list[1],list[2],list[3]);
+ //receives a list of recepients to whom the message is sent
+void sendSMS(char resp[][11]){
+	//tokenize data
+	char list[4][20];
+	int i=0;
+	char * pch = strtok (message,"\n");
+	while (pch != NULL){
+		strcpy(list[i],pch);
+		pch = strtok (NULL, "\n");
+		i++;
+	}
+	sprintf(list[0],"%d",(atoi(list[0])+1));
+	sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nphn1: %s\nphn2: %s\n",list[0],list[1],list[2],list[3]);
 
-  // Configure GPRS Connection
-  stime = millis();
-  while (!startGPRS(1) && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-    USB.println("Trying to configure GPRS...");
-    delay(2000);
-    if (millis() - stime < 0) stime = millis();
-  }
+	// Configure GPRS Connection
+	stime = millis();
+	while (!startGPRS(1) && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
+		USB.println("Trying to configure GPRS...");
+		delay(2000);
+		if (millis() - stime < 0) stime = millis();
+	}
 
-  // If timeout, exit. if not, try to send sms
-  if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-    return;
-  }
-  else{
-    //USB.println("GPRS OK");
-    if(GPRS_Pro.sendSMS(message,resp[0])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
-    //else USB.println("Error sending sms");
-    
-    delay(1000);
-    
-    if(GPRS_Pro.sendSMS(message,resp[1])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
-    //else USB.println("Error sending sms");
-  }
-  GPRS_Pro.OFF();
+	// If timeout, exit. if not, try to send sms
+	if (millis() - stime > GPRS_CONFIG_TIMEOUT){
+		return;
+	}
+	else{
+		//USB.println("GPRS OK");
+		if(GPRS_Pro.sendSMS(message,resp[0])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+		//else USB.println("Error sending sms");
+
+		delay(1000);
+
+		if(GPRS_Pro.sendSMS(message,resp[1])){}// USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
+		//else USB.println("Error sending sms");
+	}
+	GPRS_Pro.OFF();
 }
