@@ -3,7 +3,7 @@
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
 
 uint8_t noOfLines = 0; //no of times the data on the SD dard is written/cycles
-uint8_t maxLoopsBeforeUpload = 7;
+uint8_t maxLoopsBeforeUpload = 10;
 int timeDelayForRecording = 1000; //get data after every x seconds
 uint8_t successSending=0;
 
@@ -13,14 +13,12 @@ char  wholeString[300];
 uint8_t gprsRetries=0;
 uint8_t loopNo=0;
 long stime;
-char message[50];
+char message[50];//useful for dealing with the values on the sd card and sending the sms
 
 void setup(){
 	USB.begin();
 	// setup the GPS module
-	USB.print("Setting up GPS... Free Mem: ");
-	USB.println(freeMemory());
-
+	USB.print("Setting up GPS...");
 	GPS.ON();
 
 	// waiting for GPS is connected to satellites
@@ -40,10 +38,187 @@ void loop(){
 		writeToFile(wholeString);
 		delay(timeDelayForRecording);
 	}
+	getDataOut();
+	getFreeMem();
+}
+void getDataOut(){
 
-	USB.println("Sleep(2)");
-	delay(2000);
-	uploadData();
+	if(startGPRS(1)){
+		USB.println("GPRS_CONFIG OK: ");
+		if(configTCP())
+		{
+			USB.println("TCP_CONFIG OK: ");
+			modifyString("tcpR",0);//Reset the tcpR count
+
+			if(connectToServer()){
+
+				USB.println("OPEN_SOCKET OK: ");
+				if(uploadData())
+				{
+					USB.println("Data uploaded successfully");
+				}
+				else
+				{
+					USB.println("Data could not be uploaded"); 
+				}
+			}
+			else
+			{
+				USB.println("Failed to connect to the socket server"); 
+			}
+		}
+		else
+		{
+			USB.println("Failed to configure TCP ");
+			modifyString("tcpR",1);//increase no of tcp retries
+		}
+	}
+	else{ 
+		USB.println("Failed to configure GPRS: ");
+	}
+	GPRS_Pro.OFF();
+}
+uint8_t configTCP()
+{
+	x=0;
+	//now tcp connection
+	stime = millis();
+	while((millis()-stime) < TCP_CONFIG_TIMEOUT){
+		if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT)){
+			USB.println("Trying TCP connection..");
+			delay(3000);
+		}
+		else{
+			break;
+		}
+	}
+
+	if (millis() - stime > TCP_CONFIG_TIMEOUT){
+		USB.print("TCP config timout, mem: ");
+		USB.println(freeMemory());
+		x=0; 
+	}
+	else{
+		x=1;
+	}
+
+	return x;
+}
+//if this phase does not succeed, cellInfo will never return true
+uint8_t startGPRS(int isms){
+	x=0;//start when the value of x =0;
+
+	// setup for GPRS_Pro serial port
+	GPRS_Pro.ON();
+
+	// waiting while GPRS_Pro connects to the network
+	stime = millis();
+
+	while(millis()-stime < GPRS_TIMEOUT){
+		if(!GPRS_Pro.check()){
+			USB.println("Configuring GPRS...");
+			delay(2000);
+		}
+		else{
+			break;
+		}
+	}
+
+	// If timeout, exit. if not, try to upload
+	if (millis() - stime > GPRS_TIMEOUT){
+		USB.print("Timeout, free mem:");
+		USB.println(freeMemory());
+		x=0;
+	}
+	else{
+		x=1;
+	}
+
+	if(isms==1){//this is for sending the sms
+		if(!GPRS_Pro.setInfoIncomingCall()){
+			x=0;
+			if(!GPRS_Pro.setInfoIncomingSMS()){
+				x=0;
+				if(!GPRS_Pro.setTextModeSMS()){
+					x=0; 
+				}
+			}
+		}		
+	}
+	return x;
+}
+
+uint8_t uploadData(){
+	x=0;
+	//only try sending string if connected to tcp server
+	USB.println("Begin sending data...");
+	SD.ON();
+
+	if(!SD.isFile("raw_data1.txt")){
+		USB.println("File does not exist");
+	}
+	else{
+		for(int i=0;i<SD.numln("raw_data1.txt");i++){
+			sprintf(wholeString,"%s",SD.catln("raw_data1.txt",i,1));
+
+			if(uploadTCPString(wholeString))
+			{
+				USB.print(i);
+				USB.println(": sent"); 
+				successSending=1;
+			}
+			else
+			{
+				USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
+				USB.println(i);
+				successSending=0;
+				break;
+			}
+		}
+	}
+	if(successSending==1)
+	{
+		if(SD.del("raw_data1.txt")){USB.println("File deleted");}
+	}
+
+	SD.OFF();
+	//'bye' tells the server to end the connection on his side
+	uploadTCPString("bye");
+	//USB.println("Sending succeeded.");
+	// Close socket
+	GPRS_Pro.closeSocket();
+	return x;	
+}
+uint8_t connectToServer()
+{
+	x=0;
+	//only try opening tcp connection if config was OK.
+	if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
+		x=1;
+	}
+	else{
+		USB.print("Error opening the socket: free mem: "); // will simply go on but append to that file- server error
+		x=0;
+	}
+	return x;
+}
+
+uint8_t uploadTCPString(char * data)
+{
+	x=0;
+	if (GPRS_Pro.sendData(data)){
+		x=1;
+	}
+	else{
+		x=0;
+	}
+	return x;
+}
+
+void getFreeMem()
+{
+	USB.print("mem: ");
+	USB.println(freeMemory());
 }
 
 void getValues(){
@@ -180,152 +355,6 @@ uint8_t writeToFile(char *value){
 		}
 	}
 	SD.OFF();
-	return x;
-}
-
-void uploadData(){
-	SD.ON();
-	if (!SD.isFile("raw_data1.txt")){
-		SD.OFF();
-		return;
-	}
-	SD.OFF();
-
-	// Configure GPRS Connection
-	stime = millis();
-	while (!startGPRS(0) && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-		USB.println("Trying to configure GPRS...");
-		delay(2000);
-		if (millis() - stime < 0) stime = millis();
-	}
-
-	// If timeout, exit. if not, try to upload
-	if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-		USB.print("GPRS config failed, mem: ");
-		USB.println(freeMemory());
-		PWR.reboot();
-	}
-	else{
-		//config tcp connection
-		stime = millis();
-		while((millis()-stime) < TCP_CONFIG_TIMEOUT){
-			if(!GPRS_Pro.configureGPRS_TCP_UDP(SINGLE_CONNECTION,NON_TRANSPARENT)){
-				//USB.println("Trying TCP connection..");
-				delay(3000);
-			}
-			else{
-				break;
-			}
-		}
-
-		if (millis() - stime > TCP_CONFIG_TIMEOUT){
-			USB.print("TCP config failed, mem: ");
-			USB.println(freeMemory());
-
-			// Close GPRS Connection after upload
-			GPRS_Pro.OFF();
-			modifyString("tcpR",1);//modify message and write the new values to sd card then send sms if necessary
-
-			PWR.reboot();
-		}
-		else{
-			//reset the retries value in the config file.			
-
-			modifyString("tcpR",0);//modify message and write the new values to sd card then send sms if necessary
-
-			//only try opening tcp connection if config was OK.
-			if (GPRS_Pro.createSocket(TCP_CLIENT, "54.235.113.108", "8081")){
-				// * should be replaced by the desired IP direction and $ by the port
-				//only try sending string if connected to tcp server
-				USB.println("Begin sending data...");
-				SD.ON();
-
-				for (int i = 0; i < SD.numln("raw_data1.txt"); i++){
-					if (GPRS_Pro.sendData(SD.catln("raw_data1.txt", i, 1))){
-						successSending=1;
-					}
-					else{
-						USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
-						USB.println(i);
-						successSending=0;
-						break;
-					}
-				}
-
-				//if any string is not sent for whatever reason, do not delete the file
-				if(successSending==1){  
-					/* ToDo:
-					   Get cell tower details and upload them separately
-					 */
-
-					//'bye' tells the server to end the connection on his side
-					USB.println("Sending succeeded.");
-					GPRS_Pro.sendData("bye");
-
-					// Close socket
-					GPRS_Pro.closeSocket();
-
-					//after upload, delete the uploaded file
-					if (SD.del("raw_data1.txt")){/* What happens if file deleting fails???? */
-					}
-					// Close GPRS Connection after upload
-					GPRS_Pro.OFF();
-				}
-				SD.OFF();
-			}
-			else{
-				USB.print("Error opening the socket: free mem: "); // will simply go on but append to that file- server error
-				USB.println(freeMemory());
-			}	
-			//resetErrs("tcpR");
-		}
-	}
-
-}
-
-
-//if this phase does not succeed, cellInfo will never return true
-uint8_t startGPRS(int isms){
-	x=0;//start when the value of x =0;
-
-	// setup for GPRS_Pro serial port
-	GPRS_Pro.ON();
-
-	// waiting while GPRS_Pro connects to the network
-	stime = millis();
-
-	while(millis()-stime < GPRS_TIMEOUT){
-		if(!GPRS_Pro.check()){
-			USB.print("Configuring GPRS...");
-			delay(2000);
-		}
-		else{
-			break;
-		}
-	}
-
-	// If timeout, exit. if not, try to upload
-	if (millis() - stime > GPRS_TIMEOUT){
-		USB.print("Timeout, GPRS failed free mem:");
-		USB.println(freeMemory());
-		x=0;
-	}
-	else{
-		x=1;
-	}
-
-	if(isms==1){//this is for sending the sms
-		if(!GPRS_Pro.setInfoIncomingCall()){
-			x=0;
-			if(!GPRS_Pro.setInfoIncomingSMS()){
-				x=0;
-				if(!GPRS_Pro.setTextModeSMS()){
-					x=0; 
-				}
-			}
-		}		
-	}
-
 	return x;
 }
 
