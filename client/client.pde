@@ -335,7 +335,7 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 	SD.ON();
 	if(SD.isFile("my_config.txt")){
 		//USB.println("Config file exists");
-		sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+		sprintf(message,"%s",SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
 		//USB.println("Original message: ");
 		//USB.println(message);
@@ -345,7 +345,7 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 		int i=0;
 		char * pch = strtok (message,"\n");
 		while (pch != NULL){
-			strcpy(list[i],pch);
+			sprintf(list[i],"%s",pch);
 			pch = strtok (NULL, "\n");
 			i++;
 		}
@@ -358,10 +358,10 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 
 		//now copy the data from list to the data structure
 		struct my_data dat1;
-		strcpy(dat1.tcpR,list[0]);
-		strcpy(dat1.tcpX,list[1]);
-		strcpy(dat1.phn1,list[2]);
-		strcpy(dat1.phn2,list[3]);
+		sprintf(dat1.tcpR,"%s",list[0]);
+		sprintf(dat1.tcpX,"%s",list[1]);
+		sprintf(dat1.phn1,"%s",list[2]);
+		sprintf(dat1.phn2,"%s",list[3]);
 
 		if((((atoi(dat1.tcpR)+1) % atoi(dat1.tcpX))==0)&&(atoi(dat1.tcpR)!=0)){//dont send sms for the first retry
 			x=1;//send sms
@@ -402,8 +402,8 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 		if(x==1){
 
 			char resp[2][11];//send sms to these two numbers
-			strcpy(resp[0],dat1.phn1);
-			strcpy(resp[1],dat1.phn2);
+			sprintf(resp[0],"%s",dat1.phn1);
+			sprintf(resp[1],"%s",dat1.phn2);
 
 			sendSMS(resp);
 		}
@@ -421,7 +421,7 @@ void sendSMS(char resp[][11]){
 	int i=0;
 	char * pch = strtok (message,"\n");
 	while (pch != NULL){
-		strcpy(list[i],pch);
+		sprintf(list[i],"%s",pch);
 		pch = strtok (NULL, "\n");
 		i++;
 	}
