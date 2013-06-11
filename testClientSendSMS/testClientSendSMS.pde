@@ -25,7 +25,7 @@ void loop(){
 	USB.print("loop no: ");
 	USB.println(loopNo++,DEC);
 
-	USB.println("sleep(15)");
+	USB.println("sleep(8)");
 	delay(8000);
 	if(loopNo % 3) mod=!mod;
 
@@ -70,30 +70,28 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 			x=1;//send sms
 		}//add other else ifs for other cases as necessary
 
-		if(pro==1){//set its value to +=1
-                USB.println("Incrementing...");
+
+		if(strcmp(field,"tcpR")==0){
+			if(pro==1)
+			{//set its value to +=1
+
+                	USB.println("Incrementing...");
                 
-			if(strcmp(field,"tcpR")==0){
 				sprintf(dat1.tcpR,"%d",(atoi(dat1.tcpR)+1));
 				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
-			}//for other cases, to increment, add here
-                        else
-                        {
-                         USB.println("Strings don't match"); 
-                        }
-		}
-		else if(pro==0){//set its value to zero
-                USB.println("Resetting...");
-                
-			if(strcmp(field,"tcpR")==0){
+			}
+
+			else if(pro==0)
+			{//set its value to zero
+					
+                		USB.println("Resetting...");
 				sprintf(dat1.tcpR,"%d",0);
 				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
-			}//for other cases, to reset, add here
-                        else
-                        {
-                         USB.println("Strings don't match"); 
-                        }
+			}
 		}
+		else{
+			USB.println("Strings don't match"); 
+                }
 
 		USB.println("Final message: \n");
 		USB.println(message);
