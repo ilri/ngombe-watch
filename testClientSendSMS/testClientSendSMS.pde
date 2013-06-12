@@ -29,9 +29,16 @@ void loop(){
 	delay(8000);
 	if(loopNo % 3) mod=!mod;
 
-	modifyString("tcpR",mod);
-}
+	//modifyString("tcpR",mod);
 
+	modifyString("err",getErrVal("cu"));
+}
+uint8_t getErrVal(char *err){
+	if(strcmp(err,"GPRS")==0){ return 1; }//could not configure gprs
+	else if(strcmp(err,"TCP")==0){ return 2; }//could not configure tcp
+	else if(strcmp(err,"cu")==0){ return 4; }//could not connect to the socket server
+        else if(strcmp(err,"du")==0){ return 8; }//could not upload data to the socket server
+}
 void modifyString(char * field,int pro)//field is the value to bge modified, pro is 0 or 1. 1 means increase, 0 means set its value to zero
 {
 	x=0;
@@ -44,7 +51,7 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 		USB.println(message);
 
 		//tokenize data
-		char list[4][20];
+		char list[5][20];
 		int i=0;
 		char * pch = strtok (message,"\n");
 		while (pch != NULL){
@@ -57,14 +64,16 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 			char tcpX[20];
 			char phn1[11];
 			char phn2[11];
+			char errSum[20];
 		};
 
 		//now copy the data from list to the data structure
 		struct my_data dat1;
-		strcpy(dat1.tcpR,list[0]);
-		strcpy(dat1.tcpX,list[1]);
-		strcpy(dat1.phn1,list[2]);
-		strcpy(dat1.phn2,list[3]);
+		sprintf(dat1.tcpR,"%s",list[0]);
+		sprintf(dat1.tcpX,"%s",list[1]);
+		sprintf(dat1.phn1,"%s",list[2]);
+		sprintf(dat1.phn2,"%s",list[3]);
+		sprintf(dat1.errSum,"%s",list[4]);
 
 		if((((atoi(dat1.tcpR)+1) % atoi(dat1.tcpX))==0)&&(atoi(dat1.tcpR)!=0)){//dont send sms for the first retry
 			x=1;//send sms
@@ -75,23 +84,30 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 			if(pro==1)
 			{//set its value to +=1
 
-                	USB.println("Incrementing...");
-                
+				USB.println("Incrementing...");
+
 				sprintf(dat1.tcpR,"%d",(atoi(dat1.tcpR)+1));
-				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
 			}
 
 			else if(pro==0)
 			{//set its value to zero
-					
-                		USB.println("Resetting...");
+
+				USB.println("Resetting...");
 				sprintf(dat1.tcpR,"%d",0);
-				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
 			}
+		}
+		else if(strcmp(field,"err")==0){
+
+			USB.print("Adding error value in the config file: ");
+                        USB.println(pro);
+			sprintf(dat1.errSum,"%d",(atoi(dat1.errSum)+pro));
+			sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
 		}
 		else{
 			USB.println("Strings don't match"); 
-                }
+		}
 
 		USB.println("Final message: \n");
 		USB.println(message);
@@ -103,8 +119,8 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 		if(x==1){
 
 			char resp[2][11];//send sms to these two numbers
-			strcpy(resp[0],dat1.phn1);
-			strcpy(resp[1],dat1.phn2);
+			sprintf(resp[0],"%s",dat1.phn1);
+			sprintf(resp[1],"%s",dat1.phn2);
 
 			sendSMS(resp);
 		}
@@ -117,7 +133,7 @@ void modifyString(char * field,int pro)//field is the value to bge modified, pro
 
 void sendSMS(char resp[][11]){
 	//tokenize data
-	char list[4][20];
+	char list[5][20];
 	int i=0;
 	char * pch = strtok (message,"\n");
 	while (pch != NULL){
@@ -127,7 +143,7 @@ void sendSMS(char resp[][11]){
 	}
 	//or whatever message to send
 	sprintf(list[0],"%d",(atoi(list[0])+1));
-	sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nphn1: %s\nphn2: %s\n",list[0],list[1],list[2],list[3]);
+	sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nerrSum: %s\n",list[0],list[1],list[4]);
 
 	// Configure GPRS Connection
 	stime = millis();
