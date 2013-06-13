@@ -1,3 +1,30 @@
+/**
+ Copyright 2013 ILRI, www.ilri.org
+
+ Emmanuel Telewa  <e.telewa@cgiar.org>
+ Kihara Absolomon <a.kihara@cgiar.org>
+ 
+ This file is part of ngombe-watch.
+
+ timer.pde is a script that should be run on a waspmote, that is used to
+ get data from a file and send it to a tcp socket server. The idea
+ is to time out any non-responding/failed function and to log the failure to sdcard  
+ It uses TCP/IP protocols.
+ 
+ ngombe-watch is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ngombe-watch is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ngombe-watch.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #define GPRS_TIMEOUT 12000 //in millisecods
 #define GPRS_CONFIG_TIMEOUT 60000 //timeout the config after 1 minute and reboot
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value

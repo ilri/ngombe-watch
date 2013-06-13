@@ -1,24 +1,47 @@
+/**
+ Copyright 2013 ILRI, www.ilri.org
+
+ Emmanuel Telewa  <e.telewa@cgiar.org>
+ Kihara Absolomon <a.kihara@cgiar.org>
+ 
+ This file is part of ngombe-watch.
+
+ client.pde is a script that should be run on a waspmote, that is used to
+ send sensor data from the waspmotes to a tcp socket server 
+ It uses TCP/IP protocols.
+ 
+ ngombe-watch is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ngombe-watch is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ngombe-watch.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #define GPRS_TIMEOUT 12000 //in millisecods
 #define GPRS_CONFIG_TIMEOUT 60000 //timeout the config after 1 minute and reboot
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
 
 uint8_t noOfLines = 0; //no of times the data on the SD dard is written/cycles
-uint8_t maxLoopsBeforeUpload = 10;
+uint8_t maxLoopsBeforeUpload = 75;
 int timeDelayForRecording = 1000; //get data after every x seconds
 uint8_t successSending=0;
 
-char t[20];
 uint8_t x = 0;//variable determines if successful or not
-char  wholeString[300];
-uint8_t gprsRetries=0;
+char  wholeString[170];//the data
 uint8_t loopNo=0;
-long stime;
-char message[50];//useful for dealing with the values on the sd card and sending the sms
+long stime;//useful for the 
+char message[100];//useful for dealing with the values on the sd card and sending the sms
 
 void setup(){
 	USB.begin();
 	// setup the GPS module
-	USB.print("Setting up GPS...");
+	USB.print("GPS");
 	GPS.ON();
 
 	// waiting for GPS is connected to satellites
@@ -39,47 +62,42 @@ void loop(){
 		delay(timeDelayForRecording);
 	}
 	getDataOut();
+
+	modifyString("err",0);//reset the errorSum
 	getFreeMem();
 }
 void getDataOut(){
-
 	if(startGPRS(1)){
 		USB.println("GPRS_CONFIG OK: ");
-		if(configTCP())
-		{
+		if(configTCP()){
 			USB.println("TCP_CONFIG OK: ");
-			modifyString("tcpR",0);//Reset the tcpR count
-
 			if(connectToServer()){
-
 				USB.println("OPEN_SOCKET OK: ");
-				if(uploadData())
-				{
+				if(uploadData()){
 					USB.println("Data uploaded successfully");
 				}
-				else
-				{
+				else{
 					USB.println("Data could not be uploaded"); 
+					modifyString("err",getErrVal("du"));
 				}
 			}
-			else
-			{
+			else{
 				USB.println("Failed to connect to the socket server"); 
+				modifyString("err",getErrVal("cu"));
 			}
 		}
-		else
-		{
-			USB.println("Failed to configure TCP ");
-			modifyString("tcpR",1);//increase no of tcp retries
+		else{
+			USB.println("Failed to configure TCP sleep(3): ");
+			modifyString("err",getErrVal("TCP"));
 		}
 	}
 	else{ 
-		USB.println("Failed to configure GPRS: ");
+		USB.println("Failed to configure GPRS sleep(3): ");
+		modifyString("err",getErrVal("GPRS"));
 	}
 	GPRS_Pro.OFF();
 }
-uint8_t configTCP()
-{
+uint8_t configTCP(){
 	x=0;
 	//now tcp connection
 	stime = millis();
@@ -92,7 +110,6 @@ uint8_t configTCP()
 			break;
 		}
 	}
-
 	if (millis() - stime > TCP_CONFIG_TIMEOUT){
 		USB.print("TCP config timout, mem: ");
 		USB.println(freeMemory());
@@ -101,7 +118,6 @@ uint8_t configTCP()
 	else{
 		x=1;
 	}
-
 	return x;
 }
 //if this phase does not succeed, cellInfo will never return true
@@ -126,8 +142,7 @@ uint8_t startGPRS(int isms){
 
 	// If timeout, exit. if not, try to upload
 	if (millis() - stime > GPRS_TIMEOUT){
-		USB.print("Timeout, free mem:");
-		USB.println(freeMemory());
+		USB.print("Timeout");
 		x=0;
 	}
 	else{
@@ -155,20 +170,17 @@ uint8_t uploadData(){
 	SD.ON();
 
 	if(!SD.isFile("raw_data1.txt")){
-		USB.println("File does not exist");
 	}
 	else{
 		for(int i=0;i<SD.numln("raw_data1.txt");i++){
 			sprintf(wholeString,"%s",SD.catln("raw_data1.txt",i,1));
 
-			if(uploadTCPString(wholeString))
-			{
+			if(uploadTCPString(wholeString)){
 				USB.print(i);
 				USB.println(": sent"); 
 				successSending=1;
 			}
-			else
-			{
+			else{
 				USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
 				USB.println(i);
 				successSending=0;
@@ -176,15 +188,13 @@ uint8_t uploadData(){
 			}
 		}
 	}
-	if(successSending==1)
-	{
+	if(successSending==1){
 		if(SD.del("raw_data1.txt")){USB.println("File deleted");}
 	}
 
 	SD.OFF();
 	//'bye' tells the server to end the connection on his side
 	uploadTCPString("bye");
-	//USB.println("Sending succeeded.");
 	// Close socket
 	GPRS_Pro.closeSocket();
 	return x;	
@@ -197,7 +207,6 @@ uint8_t connectToServer()
 		x=1;
 	}
 	else{
-		USB.print("Error opening the socket: free mem: "); // will simply go on but append to that file- server error
 		x=0;
 	}
 	return x;
@@ -213,12 +222,6 @@ uint8_t uploadTCPString(char * data)
 		x=0;
 	}
 	return x;
-}
-
-void getFreeMem()
-{
-	USB.print("mem: ");
-	USB.println(freeMemory());
 }
 
 void getValues(){
@@ -245,33 +248,33 @@ void getGPS(){
 
 	GPS.getPosition();
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"tm\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"tm\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.timeGPS);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"dt\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"dt\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.dateGPS);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"lt\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"lt\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.latitude);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"ln\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"ln\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.longitude);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"al\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"al\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.altitude);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"sp\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"sp\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.speed);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
-	sprintf(wholeString + strlen(wholeString), "%s", "\"cs\":\"");
+	sprintf(wholeString + strlen(wholeString), "%s", "\"cs\":");
 	sprintf(wholeString + strlen(wholeString), "%s", GPS.course);
-	sprintf(wholeString + strlen(wholeString), "%s", "\",");
+	sprintf(wholeString + strlen(wholeString), "%s", ",");
 
 	// Closing UART
 	GPS.close();
@@ -286,6 +289,8 @@ void getBatteryLevel(){
 
 	// Show the battery Volts
 	sprintf(wholeString + strlen(wholeString),"%s","\"battVolt\":");
+	
+	char t[20];
 	Utils.float2String(PWR.getBatteryVolts(),t, 4);
 	sprintf(wholeString + strlen(wholeString),"%s",t);
 }
@@ -294,8 +299,7 @@ void getTemperature(){
 	int x_acc = RTC.getTemperature();
 
 	sprintf(wholeString+strlen(wholeString),"%s", "\"temp\":");
-	sprintf(t, "%d", x_acc);
-	sprintf(wholeString+strlen(wholeString),"%s", t);
+	sprintf(wholeString+strlen(wholeString),"%d", x_acc);
 	sprintf(wholeString+strlen(wholeString),"%s",",");
 }
 
@@ -331,7 +335,6 @@ uint8_t writeToFile(char *value){
 	   1 if the writing/appending was successful
 	   -1 if unsuccessful writing.
 	   -3 if error appending
-	   -5 Folder doesnt exist but not created
 	 */
 
 	SD.ON();
@@ -358,31 +361,38 @@ uint8_t writeToFile(char *value){
 	return x;
 }
 
-void modifyString(char * field,int pro)//field is the value to be modified, pro is 0 or 1. 1 means increase, 0 means set its value to zero
+uint8_t getErrVal(char *err){
+	if(strcmp(err,"GPRS")==0){ return 1; }//could not configure gprs
+	else if(strcmp(err,"TCP")==0){ return 2; }//could not configure tcp
+	else if(strcmp(err,"cu")==0){ return 4; }//could not connect to the socket server
+	else if(strcmp(err,"du")==0){ return 8; }//could not upload data to the socket server
+}
+
+void modifyString(char * field,int pro)//field is the value to bge modified, pro is 0 or 1. 1 means increase, 0 means set its value to zero
 {
 	x=0;
-	SD.ON();
-	if(SD.isFile("my_config.txt")){
-		//USB.println("Config file exists");
-		sprintf(message,"%s",SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
+	uint8_t errSumToSend= 0;
 
-		//USB.println("Original message: ");
-		//USB.println(message);
+	SD.ON();
+	if(SD.isFile("my_config.txt")){                
+		sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
 		//tokenize data
-		char list[4][20];
+		char list[5][20];
 		int i=0;
 		char * pch = strtok (message,"\n");
 		while (pch != NULL){
-			sprintf(list[i],"%s",pch);
+			strcpy(list[i],pch);
 			pch = strtok (NULL, "\n");
 			i++;
 		}
+
 		struct my_data{
 			char tcpR[20];
 			char tcpX[20];
 			char phn1[11];
 			char phn2[11];
+			char errSum[20];
 		};
 
 		//now copy the data from list to the data structure
@@ -391,49 +401,60 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 		sprintf(dat1.tcpX,"%s",list[1]);
 		sprintf(dat1.phn1,"%s",list[2]);
 		sprintf(dat1.phn2,"%s",list[3]);
+		sprintf(dat1.errSum,"%s",list[4]);
 
 		if((((atoi(dat1.tcpR)+1) % atoi(dat1.tcpX))==0)&&(atoi(dat1.tcpR)!=0)){//dont send sms for the first retry
 			x=1;//send sms
 		}//add other else ifs for other cases as necessary
 
-		if(pro==1){//set its value to +=1
-			//USB.println("Incrementing...");
 
-			if(strcmp(field,"tcpR")==0){
+		if(strcmp(field,"tcpR")==0){
+			if(pro==1)
+			{//set its value to +=1
 				sprintf(dat1.tcpR,"%d",(atoi(dat1.tcpR)+1));
-				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
-			}//for other cases, to increment, add here
-			else
-			{
-				//       USB.println("Strings don't match"); 
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
 			}
-		}
-		else if(pro==0){//set its value to zero
-			//USB.println("Resetting...");
 
-			if(strcmp(field,"tcpR")==0){
+			else if(pro==0)
+			{//set its value to zero
 				sprintf(dat1.tcpR,"%d",0);
-				sprintf(message,"%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2);
-			}//for other cases, to reset, add here
-			else
-			{
-				//     USB.println("Strings don't match"); 
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
 			}
 		}
+		else if(strcmp(field,"err")==0){
+			if(pro==0){
+				//save the prev valur before reseting on the sd 
+				errSumToSend=atoi(dat1.errSum);     
+				sprintf(dat1.errSum,"%d",0);
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
+			}
+			else{
+				sprintf(dat1.errSum,"%d",(atoi(dat1.errSum)+pro));
+				//write back the message to send
+				sprintf(message,"%s\n%s\n%s\n%s\n%s\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,dat1.errSum);
+			}
+		}
+		else{
+			USB.println("Strings don't match");
+		}
 
-		//USB.println("Final message: \n");
-		//USB.println(message);
+		if(SD.writeSD("my_config.txt",message,0)){ USB.println("write new values to my_config.txt");}
+		USB.println("Show 'my_config.txt': ");
+		USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
 
-		if(SD.writeSD("my_config.txt",message,0)){}// USB.println("write new values to my_config.txt");
-		//USB.println("Show 'my_config.txt':  ");
-		//USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
-
+		USB.print("Sendinmg sms: ");USB.println(errSumToSend,DEC); 
+		/*for the purpose of sms if err>1*/
+		if(errSumToSend>1){
+			sprintf(message,"%s\n%s\n%s\n%s\n%d\n",dat1.tcpR,dat1.tcpX,dat1.phn1,dat1.phn2,errSumToSend);
+			x=1;
+		}                        
 		if(x==1){
 
 			char resp[2][11];//send sms to these two numbers
 			sprintf(resp[0],"%s",dat1.phn1);
 			sprintf(resp[1],"%s",dat1.phn2);
 
+			GPRS_Pro.OFF();
 			sendSMS(resp);
 		}
 	}
@@ -446,38 +467,32 @@ void modifyString(char * field,int pro)//field is the value to be modified, pro 
 //receives a list of recepients to whom the message is sent
 void sendSMS(char resp[][11]){
 	//tokenize data
-	char list[4][20];
+	char list[5][20];
 	int i=0;
 	char * pch = strtok (message,"\n");
 	while (pch != NULL){
-		sprintf(list[i],"%s",pch);
+		strcpy(list[i],pch);
 		pch = strtok (NULL, "\n");
 		i++;
 	}
+	//or whatever message to send
 	sprintf(list[0],"%d",(atoi(list[0])+1));
-	sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nphn1: %s\nphn2: %s\n",list[0],list[1],list[2],list[3]);
+	sprintf(message,"tcpRetries: %s\nmax tcp retries: %s\nerrSum: %s\n",list[0],list[1],list[4]);
 
-	// Configure GPRS Connection
-	stime = millis();
-	while (!startGPRS(1) && ((millis() - stime) < GPRS_CONFIG_TIMEOUT)){
-		USB.println("Trying to configure GPRS...");
-		delay(2000);
-		if (millis() - stime < 0) stime = millis();
-	}
-
-	// If timeout, exit. if not, try to send sms
-	if (millis() - stime > GPRS_CONFIG_TIMEOUT){
-		return;
-	}
-	else{
-		//USB.println("GPRS OK");
-		if(GPRS_Pro.sendSMS(message,resp[0]))  USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
-		//else USB.println("Error sending sms");
-
-		//delay(1000);
-
-		if(GPRS_Pro.sendSMS(message,resp[1])) USB.println("SMS Sent OK"); // * should be replaced by the desired tlfn number
-		//else USB.println("Error sending sms");
+	if(startGPRS(1)){
+		if(GPRS_Pro.sendSMS(message,resp[1])){
+			USB.println("SMS Sent OK");
+		}// * should be replaced by the desired tlfn number
+		else{
+			USB.println("Error sending sms");
+		}
 	}
 	GPRS_Pro.OFF();
 }
+
+void getFreeMem()
+{
+	USB.print("mem: ");
+	USB.println(freeMemory());
+}
+

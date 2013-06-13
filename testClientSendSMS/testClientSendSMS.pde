@@ -1,3 +1,29 @@
+/**
+ Copyright 2013 ILRI, www.ilri.org
+
+ Emmanuel Telewa  <e.telewa@cgiar.org>
+ Kihara Absolomon <a.kihara@cgiar.org>
+ 
+ This file is part of ngombe-watch.
+
+ testClientSendSMS.pde is a script that should be run on a waspmote, that is used to
+ get data from a file and send it to a tcp socket server. The idea is to send an sms
+ if any failure occures, to the two phone numbers in the sdcard  
+ 
+ ngombe-watch is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+ 
+ ngombe-watch is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public License
+ along with ngombe-watch.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #define GPRS_TIMEOUT 12000 //in millisecods
 #define GPRS_CONFIG_TIMEOUT 60000 //timeout the config after 1 minute and reboot
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
@@ -15,7 +41,6 @@ uint8_t gprsRetries=0;
 uint8_t loopNo=0;
 long stime;
 char message[100];
-uint8_t mod=1;
 
 void setup(){
 	USB.begin();
@@ -27,9 +52,6 @@ void loop(){
 
 	USB.println("sleep(8)");
 	delay(8000);
-	if(loopNo % 3) mod=!mod;
-
-	//modifyString("tcpR",mod);
 
 	modifyString("err",getErrVal("cu"));
 }
