@@ -6,7 +6,7 @@
  
  This file is part of ngombe-watch.
 
- server.c is a script that should be run on a server, that is used to
+ waspmote_server.c is a script that should be run on a server, that is used to
  receive data from the clients(waspmotes) and save the data into a 
  MySQL database. It uses TCP/IP protocols.
  

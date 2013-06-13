@@ -37,6 +37,7 @@ char  wholeString[170];//the data
 uint8_t loopNo=0;
 long stime;//useful for the 
 char message[100];//useful for dealing with the values on the sd card and sending the sms
+int uploadeddatano=0;
 
 void setup(){
 	USB.begin();
@@ -55,7 +56,7 @@ void loop(){
 	USB.print("Loop no: .");
 	USB.println(loopNo++,DEC);
 
-	for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){
+	for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){//start where the last upload ended
 		getValues();
 		USB.print(wholeString);
 		writeToFile(wholeString);
@@ -75,6 +76,7 @@ void getDataOut(){
 				USB.println("OPEN_SOCKET OK: ");
 				if(uploadData()){
 					USB.println("Data uploaded successfully");
+                                        uploadeddatano=0;//start from zero next time
 				}
 				else{
 					USB.println("Data could not be uploaded"); 
@@ -172,7 +174,7 @@ uint8_t uploadData(){
 	if(!SD.isFile("raw_data1.txt")){
 	}
 	else{
-		for(int i=0;i<SD.numln("raw_data1.txt");i++){
+		for(int i=uploadeddatano;i<SD.numln("raw_data1.txt");i++){
 			sprintf(wholeString,"%s",SD.catln("raw_data1.txt",i,1));
 
 			if(uploadTCPString(wholeString)){
@@ -184,6 +186,7 @@ uint8_t uploadData(){
 				USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
 				USB.println(i);
 				successSending=0;
+                                uploadeddatano=i;//start from index i next time
 				break;
 			}
 		}
@@ -481,6 +484,13 @@ void sendSMS(char resp[][11]){
 
 	if(startGPRS(1)){
 		if(GPRS_Pro.sendSMS(message,resp[1])){
+			USB.println("SMS Sent OK");
+		}// * should be replaced by the desired tlfn number
+		else{
+			USB.println("Error sending sms");
+		}
+
+		if(GPRS_Pro.sendSMS(message,resp[0])){
 			USB.println("SMS Sent OK");
 		}// * should be replaced by the desired tlfn number
 		else{
