@@ -1,2 +1,3 @@
 client/.client.pde.swp
 client/applet
+*.o
