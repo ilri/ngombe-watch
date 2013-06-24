@@ -28,7 +28,7 @@
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
 
 uint8_t noOfLines = 0; //no of times the data on the SD dard is written/cycles
-uint8_t maxLoopsBeforeUpload = 75;
+uint8_t maxLoopsBeforeUpload = 10;
 int timeDelayForRecording = 1000; //get data after every x seconds
 uint8_t successSending=0;
 
