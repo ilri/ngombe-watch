@@ -28,7 +28,7 @@
 #define TCP_CONFIG_TIMEOUT 150000//tcp configuration timout* check this value
 
 uint8_t noOfLines = 0; //no of times the data on the SD dard is written/cycles
-uint8_t maxLoopsBeforeUpload = 75;
+uint8_t maxLoopsBeforeUpload = 10;
 int timeDelayForRecording = 1000; //get data after every x seconds
 uint8_t successSending=0;
 
@@ -37,6 +37,7 @@ char  wholeString[170];//the data
 uint8_t loopNo=0;
 long stime;//useful for the 
 char message[100];//useful for dealing with the values on the sd card and sending the sms
+int uploadeddatano=0;
 
 void setup(){
 	USB.begin();
@@ -55,7 +56,7 @@ void loop(){
 	USB.print("Loop no: .");
 	USB.println(loopNo++,DEC);
 
-	for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){
+	for (noOfLines = 0; noOfLines < maxLoopsBeforeUpload; noOfLines++){//start where the last upload ended
 		getValues();
 		USB.print(wholeString);
 		writeToFile(wholeString);
@@ -75,6 +76,7 @@ void getDataOut(){
 				USB.println("OPEN_SOCKET OK: ");
 				if(uploadData()){
 					USB.println("Data uploaded successfully");
+                                        uploadeddatano=0;//start from zero next time
 				}
 				else{
 					USB.println("Data could not be uploaded"); 
@@ -172,7 +174,7 @@ uint8_t uploadData(){
 	if(!SD.isFile("raw_data1.txt")){
 	}
 	else{
-		for(int i=0;i<SD.numln("raw_data1.txt");i++){
+		for(int i=uploadeddatano;i<SD.numln("raw_data1.txt");i++){
 			sprintf(wholeString,"%s",SD.catln("raw_data1.txt",i,1));
 
 			if(uploadTCPString(wholeString)){
@@ -184,6 +186,7 @@ uint8_t uploadData(){
 				USB.print("Failed sending at line: ");// if one fails, then the rest are bound to fail as well.
 				USB.println(i);
 				successSending=0;
+                                uploadeddatano=i;//start from index i next time
 				break;
 			}
 		}
@@ -486,58 +489,20 @@ void sendSMS(char resp[][11]){
 		else{
 			USB.println("Error sending sms");
 		}
+
+		if(GPRS_Pro.sendSMS(message,resp[0])){
+			USB.println("SMS Sent OK");
+		}// * should be replaced by the desired tlfn number
+		else{
+			USB.println("Error sending sms");
+		}
 	}
 	GPRS_Pro.OFF();
 }
 
 void getFreeMem()
 {
-<<<<<<< HEAD
-  x=0;
-  SD.ON();
-  if(SD.isFile("my_config.txt"))
-  {
-    sprintf(message,SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
-
-    //tokenize data
-    char list[4][20];
-    int i=0;
-    char * pch = strtok (message,"\n");
-    while (pch != NULL)
-    {
-      strcpy(list[i],pch);
-      pch = strtok (NULL, "\n");
-      i++;
-    }
-    if((atoi(list[0]) % atoi(list[1]))==0)
-    {
-      x=1;//send sms
-    }
-
-    sprintf(list[0],"%d",(atoi(list[0])+1));
-    sprintf(message,"%s\n%s\n%s\n%s\n",list[0],list[1],list[2],list[3]);
-
-    if(SD.writeSD("my_config.txt",message,0)){}// USB.println("write new values to my_config.txt");
-    //USB.println("Show 'my_config.txt':  ");
-    //USB.println(SD.catln("my_config.txt",0,SD.numln("my_config.txt")));
-
-    char resp[2][11];
-    strcpy(resp[0],list[2]);
-    strcpy(resp[1],list[3]);
-
-    if(x==1)
-    {
-      sendSMS(resp);
-    }
-  }
-  else
-  {
-    //USB.println("file does not exist"); 
-  }  
-  SD.OFF();
-=======
 	USB.print("mem: ");
 	USB.println(freeMemory());
->>>>>>> origin/master
 }
 
