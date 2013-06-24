@@ -1,11 +1,26 @@
-1. Open the file sAdmin.php on the browser of the machine where the server is running.
-2. Set the server mysql details as appropriate in the file 'commons.php'.\
-3. Click "Create database on the browser 'sAdmin.php'".-> should say 
-"Database created..
-COW_DATA table created.. "
-4. Change the server details as well on the c server file include "waspmote_server.c".
-5. compile the server using this command gcc -o server waspmote_server.c -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql
-NB: Incase compiling has mysql errors refer to this
-	(http://stackoverflow.com/questions/2778271/compiling-a-c-program-including-mysql) 
-6. Run the server as usual. i.e in this case, ./server
+1. The fileServer is the ececutable that is to be called by the server to stote the data to db.
+The server file is the ececutable that receives data from the client and stors it to file and later calls the fileServer fro store all the  written code to the database.
+3. Both the server and fileServer have to be in the same dir
+To compile server- use normal gcc waspmote_server.c -o server
+To compile toDB.c use gcc -o fileServer toDB.c -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql
 
+then run only server
+
+####################
+
+table format
+CREATE TABLE COW_DATA
+(VNumber int not null primary key auto_increment,
+ ax VARCHAR(40),
+ ay VARCHAR(40),
+ az VARCHAR(40),
+ dt DATETIME,
+ lt VARCHAR(40),
+ ln VARCHAR(40),
+ al VARCHAR(40),
+ sp VARCHAR(40),
+ cs VARCHAR(40),
+ temp VARCHAR(40),
+ battery VARCHAR(40),
+ battVolt VARCHAR(40));
+ 
