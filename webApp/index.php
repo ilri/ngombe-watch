@@ -138,7 +138,35 @@
 				
 
 				function getRealGPS(coords) {
-					var gpsV = coords.split(",");
+					gpsV = [];
+				//	if(coords === "") return;
+					gpsV = coords.split(",");
+
+					//now change the N/S/W/E to - or + 
+					var latSign;
+					var lonSign;
+
+					//sign for the latitude
+					if(/.+S$/.test(gpsV[0])){
+						latSign = 'n';
+					}
+					else if(/.+N$/.test(gpsV[0])){
+						latSign = 'p';
+					}
+
+					//sign for the longitude
+					if(/.+W/.test(gpsV[1])){
+						lonSign = 'n';
+					}
+					else if(/.+E/.test(gpsV[1])){
+						lonSign = 'p';
+					}
+
+					//remove the letter at the end
+					gpsV[0]=gpsV[0].slice(0,gpsV[0].length - 1);
+					gpsV[1]=gpsV[1].slice(0,gpsV[1].length - 1);
+
+					//alert(gpsV[1]);
 					//convert each to decimal numbers	
 					gpsV[0] = (parseFloat(gpsV[0]) * 0.01).toString();
 					gpsV[1] = (parseFloat(gpsV[1]) * 0.01).toString();
@@ -159,8 +187,16 @@
 					var mantLat = gpsV[0].substring(gpsV[0].indexOf('.') + 1);
 					var mantLon = gpsV[1].substring(gpsV[1].indexOf('.') + 1);
 
-					if(mantLat[0] === '0' || mantLon[0]==='0'){
+					if(mantLon[0] === '0'){
 						alert(mantLat + ","+ mantLon);
+					}
+
+					//now recover the signs
+					if(lonSign === 'n'){
+						lonF*=-1;
+					}
+					if(latSign === 'n'){
+						latF*=-1;
 					}
 
 					//now construct the final coordinates
@@ -174,11 +210,14 @@
 				
 				//now convert the values to usable GPS values
 				for (i = 0; i < locT.length; i++) {
+					if(locT[i] === ""){
+					}
+					else{
 					locT[i] = getRealGPS(locT[i]);
-					
 					//now using the valid coordinates, create objects that can be accessed
 					aval = locT[i].split(",");//get the respective lt and long
 					myPath[i] = new coordObjs(aval[0],aval[1]);//new obj based on the given coord
+					}
 				}
 				
 				function coordObjs(lt,ln){
@@ -187,11 +226,11 @@
 				}
 				
 				//now draw the map based on the coordns of the path given		
-			var x = new google.maps.LatLng(-parseFloat(myPath[0].latd),parseFloat(myPath[0].longd));
+			var x = new google.maps.LatLng(parseFloat(myPath[0].latd),parseFloat(myPath[0].longd));
 			
 			var myPathway = [];
 			for(var i=0; i < myPath.length-1; i++){
-				myPathway[myPathway.length] = new google.maps.LatLng(-parseFloat(myPath[i].latd),parseFloat(myPath[i].longd));
+				myPathway[myPathway.length] = new google.maps.LatLng(parseFloat(myPath[i].latd),parseFloat(myPath[i].longd));
 			}
 			
 			function initialize()
