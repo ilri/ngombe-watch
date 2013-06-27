@@ -169,14 +169,7 @@
 					coords = gpsV[0] + "," + gpsV[1];
 					return coords;
 				}
-
-				var gpsLt = f1("lt", noOfDays);//other factor to be plotted vs time
-				var gpsLn = f1("ln", noOfDays);//other factor to be plotted vs time
-				gpsLtB = gpsLt.split(",");
-				gpsLnB = gpsLn.split(",");
-
 				getValues("GPS");
-
 				locT = valuesT.split("\n");
 				
 				//now convert the values to usable GPS values
