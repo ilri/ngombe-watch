@@ -116,7 +116,7 @@
 								initLat = obj[i]["lt"];
 								//recover the lost letters
 								initLat = initLat + dirLat;
-								intLong = initLog + dirLong;
+								initLong = initLong + dirLon;
 								
 								valuesT += initLat + "," + initLong;
 							}
@@ -128,14 +128,13 @@
 									initLong = ln;
 									initLat = lt;
 									i++;
+									initLat = initLat + dirLat;
+									intLong = initLong + dirLon;
+									
 									valuesT += initLat + "," + initLong;
 								}
 							}
 							valuesT += "\n";
-							
-							alert(valuesT);
-							
-							exit(0);
 						}
 					}
 					
