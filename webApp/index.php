@@ -67,6 +67,7 @@
 				var obj = jQuery.parseJSON(f1(noOfDays));//load the values from  db
 
 				valuesT = ""; //this is what is used for drawing the charts
+				
 				/* functions for deciding which gps points to plot */
 				function getcoordinate(raw) {
 					raw = raw * 0.01;
@@ -82,7 +83,7 @@
 					var radius = 6371;//of earth
 					var logDiff = degree2rad(long1 - long2);
 					latDiff = degree2rad(lat1 - lat2);
-					var a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) + Math.cos(degree2rad(lat1)) * Math.cos(degree2rad(lat2)) * Math.sin(logDiff / 2) * Math.sin(logDiff / 2);
+				var a = (Math.sin(latDiff / 2) * Math.sin(latDiff / 2) + Math.cos(degree2rad(lat1)) * Math.cos(degree2rad(lat2)) * Math.sin(logDiff / 2) * Math.sin(logDiff / 2));
 					c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 					d = radius * c;
 					return d;
@@ -94,17 +95,21 @@
 					var initLong = -1;
 					var initLat;
 					valuesT = "";
+					
 					for (var i = 0; i < obj.length; i++) {
+						
 						if (param !== "GPS") {
 							valuesT += obj[i]["dt"];
 							valuesT += ",";
 
 							valuesT += obj[i][param];
+							valuesT += "\n";
 						}
-
+		
 						else if (param === "GPS") {
-							var dirLat = obj[i]["lt"][obj[i]["lt"].length-1];
-							var dirLon = obj[i]["ln"][obj[i]["ln"].length-1];
+							
+							var dirLat = obj[i]["lt"][ obj[i]["lt"].length-1 ];
+							var dirLon = obj[i]["ln"][ obj[i]["ln"].length-1 ];
 							
 							//remove the letters for calculation
 							obj[i]["ln"] =obj[i]["ln"].slice(0,obj[i]["ln"].length-1);
@@ -114,11 +119,10 @@
 							if (initLong === -1) {
 								initLong = obj[i]["ln"];
 								initLat = obj[i]["lt"];
-								//recover the lost letters
-								initLat = initLat + dirLat;
-								initLong = initLong + dirLon;
 								
-								valuesT += initLat + "," + initLong;
+								//recover the lost letters	
+								valuesT += initLat +dirLat+ "," + initLong+ dirLon;
+								valuesT += "\n";
 							}
 							else {
 								var ln = obj[i]["ln"];
@@ -128,16 +132,16 @@
 									initLong = ln;
 									initLat = lt;
 									i++;
-									initLat = initLat + dirLat;
-									intLong = initLong + dirLon;
 									
-									valuesT += initLat + "," + initLong;
+								//recover the lost letters	
+								valuesT += initLat +dirLat+ "," + initLong+ dirLon;
+									valuesT += "\n";
 								}
-							}
-							valuesT += "\n";
+							}		
 						}
+						
+						
 					}
-					
 				}
 
 				getValues("ax");
@@ -254,6 +258,7 @@
 					coords = gpsV[0] + "," + gpsV[1];
 					return coords;
 				}
+				
 				getValues("GPS");
 				locT = valuesT.split("\n");
 
@@ -263,12 +268,12 @@
 					}
 					else {
 						locT[i] = getRealGPS(locT[i]);
+						//alert(locT[i]);
 						//now using the valid coordinates, create objects that can be accessed
 						aval = locT[i].split(",");//get the respective lt and long
 						myPath[i] = new coordObjs(aval[0], aval[1]);//new obj based on the given coord
 					}
 				}
-
 				function coordObjs(lt, ln) {
 					this.latd = lt;
 					this.longd = ln;
@@ -303,6 +308,7 @@
 					flightPath.setMap(map);
 				}
 				initialize();
+				
 			}
 		</script>
 
